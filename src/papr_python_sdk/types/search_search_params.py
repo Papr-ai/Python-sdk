@@ -6,10 +6,10 @@ from typing_extensions import Required, Annotated, TypedDict
 
 from .._utils import PropertyInfo
 
-__all__ = ["SearchPerformParams"]
+__all__ = ["SearchSearchParams"]
 
 
-class SearchPerformParams(TypedDict, total=False):
+class SearchSearchParams(TypedDict, total=False):
     query: Required[str]
     """Detailed search query describing what you're looking for.
 

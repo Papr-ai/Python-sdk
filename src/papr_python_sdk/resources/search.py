@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import httpx
 
-from ..types import search_perform_params
+from ..types import search_search_params
 from .._types import NOT_GIVEN, Body, Query, Headers, NotGiven
 from .._utils import maybe_transform, strip_not_given, async_maybe_transform
 from .._compat import cached_property
@@ -41,7 +41,7 @@ class SearchResource(SyncAPIResource):
         """
         return SearchResourceWithStreamingResponse(self)
 
-    def perform(
+    def search(
         self,
         *,
         query: str,
@@ -104,7 +104,7 @@ class SearchResource(SyncAPIResource):
                     "query": query,
                     "rank_results": rank_results,
                 },
-                search_perform_params.SearchPerformParams,
+                search_search_params.SearchSearchParams,
             ),
             options=make_request_options(
                 extra_headers=extra_headers,
@@ -116,7 +116,7 @@ class SearchResource(SyncAPIResource):
                         "max_memories": max_memories,
                         "max_nodes": max_nodes,
                     },
-                    search_perform_params.SearchPerformParams,
+                    search_search_params.SearchSearchParams,
                 ),
             ),
             cast_to=SearchResponse,
@@ -143,7 +143,7 @@ class AsyncSearchResource(AsyncAPIResource):
         """
         return AsyncSearchResourceWithStreamingResponse(self)
 
-    async def perform(
+    async def search(
         self,
         *,
         query: str,
@@ -206,7 +206,7 @@ class AsyncSearchResource(AsyncAPIResource):
                     "query": query,
                     "rank_results": rank_results,
                 },
-                search_perform_params.SearchPerformParams,
+                search_search_params.SearchSearchParams,
             ),
             options=make_request_options(
                 extra_headers=extra_headers,
@@ -218,7 +218,7 @@ class AsyncSearchResource(AsyncAPIResource):
                         "max_memories": max_memories,
                         "max_nodes": max_nodes,
                     },
-                    search_perform_params.SearchPerformParams,
+                    search_search_params.SearchSearchParams,
                 ),
             ),
             cast_to=SearchResponse,
@@ -229,8 +229,8 @@ class SearchResourceWithRawResponse:
     def __init__(self, search: SearchResource) -> None:
         self._search = search
 
-        self.perform = to_raw_response_wrapper(
-            search.perform,
+        self.search = to_raw_response_wrapper(
+            search.search,
         )
 
 
@@ -238,8 +238,8 @@ class AsyncSearchResourceWithRawResponse:
     def __init__(self, search: AsyncSearchResource) -> None:
         self._search = search
 
-        self.perform = async_to_raw_response_wrapper(
-            search.perform,
+        self.search = async_to_raw_response_wrapper(
+            search.search,
         )
 
 
@@ -247,8 +247,8 @@ class SearchResourceWithStreamingResponse:
     def __init__(self, search: SearchResource) -> None:
         self._search = search
 
-        self.perform = to_streamed_response_wrapper(
-            search.perform,
+        self.search = to_streamed_response_wrapper(
+            search.search,
         )
 
 
@@ -256,6 +256,6 @@ class AsyncSearchResourceWithStreamingResponse:
     def __init__(self, search: AsyncSearchResource) -> None:
         self._search = search
 
-        self.perform = async_to_streamed_response_wrapper(
-            search.perform,
+        self.search = async_to_streamed_response_wrapper(
+            search.search,
         )

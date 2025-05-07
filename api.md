@@ -29,17 +29,17 @@ from papr_python_sdk.types import (
     SearchResponse,
     MemoryUpdateResponse,
     MemoryDeleteResponse,
-    MemoryCreateBatchResponse,
+    MemoryAddBatchResponse,
 )
 ```
 
 Methods:
 
-- <code title="post /v1/memory">client.memory.<a href="./src/papr_python_sdk/resources/memory.py">create</a>(\*\*<a href="src/papr_python_sdk/types/memory_create_params.py">params</a>) -> <a href="./src/papr_python_sdk/types/add_memory_response.py">AddMemoryResponse</a></code>
 - <code title="get /v1/memory/{memory_id}">client.memory.<a href="./src/papr_python_sdk/resources/memory.py">retrieve</a>(memory_id) -> <a href="./src/papr_python_sdk/types/search_response.py">SearchResponse</a></code>
 - <code title="put /v1/memory/{memory_id}">client.memory.<a href="./src/papr_python_sdk/resources/memory.py">update</a>(memory_id, \*\*<a href="src/papr_python_sdk/types/memory_update_params.py">params</a>) -> <a href="./src/papr_python_sdk/types/memory_update_response.py">MemoryUpdateResponse</a></code>
 - <code title="delete /v1/memory/{memory_id}">client.memory.<a href="./src/papr_python_sdk/resources/memory.py">delete</a>(memory_id, \*\*<a href="src/papr_python_sdk/types/memory_delete_params.py">params</a>) -> <a href="./src/papr_python_sdk/types/memory_delete_response.py">MemoryDeleteResponse</a></code>
-- <code title="post /v1/memory/batch">client.memory.<a href="./src/papr_python_sdk/resources/memory.py">create_batch</a>(\*\*<a href="src/papr_python_sdk/types/memory_create_batch_params.py">params</a>) -> <a href="./src/papr_python_sdk/types/memory_create_batch_response.py">MemoryCreateBatchResponse</a></code>
+- <code title="post /v1/memory">client.memory.<a href="./src/papr_python_sdk/resources/memory.py">add</a>(\*\*<a href="src/papr_python_sdk/types/memory_add_params.py">params</a>) -> <a href="./src/papr_python_sdk/types/add_memory_response.py">AddMemoryResponse</a></code>
+- <code title="post /v1/memory/batch">client.memory.<a href="./src/papr_python_sdk/resources/memory.py">add_batch</a>(\*\*<a href="src/papr_python_sdk/types/memory_add_batch_params.py">params</a>) -> <a href="./src/papr_python_sdk/types/memory_add_batch_response.py">MemoryAddBatchResponse</a></code>
 
 # Document
 
@@ -57,4 +57,4 @@ Methods:
 
 Methods:
 
-- <code title="post /v1/search">client.search.<a href="./src/papr_python_sdk/resources/search.py">perform</a>(\*\*<a href="src/papr_python_sdk/types/search_perform_params.py">params</a>) -> <a href="./src/papr_python_sdk/types/search_response.py">SearchResponse</a></code>
+- <code title="post /v1/search">client.search.<a href="./src/papr_python_sdk/resources/search.py">search</a>(\*\*<a href="src/papr_python_sdk/types/search_search_params.py">params</a>) -> <a href="./src/papr_python_sdk/types/search_response.py">SearchResponse</a></code>

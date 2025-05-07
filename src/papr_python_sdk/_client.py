@@ -23,32 +23,23 @@ from ._utils import is_given, get_async_library
 from ._version import __version__
 from .resources import user, memory, search, document
 from ._streaming import Stream as Stream, AsyncStream as AsyncStream
-from ._exceptions import APIStatusError, PaprPythonSDKError
+from ._exceptions import PaprError, APIStatusError
 from ._base_client import (
     DEFAULT_MAX_RETRIES,
     SyncAPIClient,
     AsyncAPIClient,
 )
 
-__all__ = [
-    "Timeout",
-    "Transport",
-    "ProxiesTypes",
-    "RequestOptions",
-    "PaprPythonSDK",
-    "AsyncPaprPythonSDK",
-    "Client",
-    "AsyncClient",
-]
+__all__ = ["Timeout", "Transport", "ProxiesTypes", "RequestOptions", "Papr", "AsyncPapr", "Client", "AsyncClient"]
 
 
-class PaprPythonSDK(SyncAPIClient):
+class Papr(SyncAPIClient):
     user: user.UserResource
     memory: memory.MemoryResource
     document: document.DocumentResource
     search: search.SearchResource
-    with_raw_response: PaprPythonSDKWithRawResponse
-    with_streaming_response: PaprPythonSDKWithStreamedResponse
+    with_raw_response: PaprWithRawResponse
+    with_streaming_response: PaprWithStreamedResponse
 
     # client options
     api_key: str
@@ -78,7 +69,7 @@ class PaprPythonSDK(SyncAPIClient):
         # part of our public interface in the future.
         _strict_response_validation: bool = False,
     ) -> None:
-        """Construct a new synchronous PaprPythonSDK client instance.
+        """Construct a new synchronous Papr client instance.
 
         This automatically infers the following arguments from their corresponding environment variables if they are not provided:
         - `api_key` from `PAPR_PYTHON_SDK_API_KEY`
@@ -87,7 +78,7 @@ class PaprPythonSDK(SyncAPIClient):
         if api_key is None:
             api_key = os.environ.get("PAPR_PYTHON_SDK_API_KEY")
         if api_key is None:
-            raise PaprPythonSDKError(
+            raise PaprError(
                 "The api_key client option must be set either by passing api_key to the client or by setting the PAPR_PYTHON_SDK_API_KEY environment variable"
             )
         self.api_key = api_key
@@ -95,15 +86,15 @@ class PaprPythonSDK(SyncAPIClient):
         if bearer_token is None:
             bearer_token = os.environ.get("PAPR_PYTHON_SDK_BEARER_TOKEN")
         if bearer_token is None:
-            raise PaprPythonSDKError(
+            raise PaprError(
                 "The bearer_token client option must be set either by passing bearer_token to the client or by setting the PAPR_PYTHON_SDK_BEARER_TOKEN environment variable"
             )
         self.bearer_token = bearer_token
 
         if base_url is None:
-            base_url = os.environ.get("PAPR_PYTHON_SDK_BASE_URL")
+            base_url = os.environ.get("PAPR_BASE_URL")
         if base_url is None:
-            base_url = f"https://api.example.com"
+            base_url = f"https://memory.papr.ai"
 
         super().__init__(
             version=__version__,
@@ -120,8 +111,8 @@ class PaprPythonSDK(SyncAPIClient):
         self.memory = memory.MemoryResource(self)
         self.document = document.DocumentResource(self)
         self.search = search.SearchResource(self)
-        self.with_raw_response = PaprPythonSDKWithRawResponse(self)
-        self.with_streaming_response = PaprPythonSDKWithStreamedResponse(self)
+        self.with_raw_response = PaprWithRawResponse(self)
+        self.with_streaming_response = PaprWithStreamedResponse(self)
 
     @property
     @override
@@ -239,13 +230,13 @@ class PaprPythonSDK(SyncAPIClient):
         return APIStatusError(err_msg, response=response, body=body)
 
 
-class AsyncPaprPythonSDK(AsyncAPIClient):
+class AsyncPapr(AsyncAPIClient):
     user: user.AsyncUserResource
     memory: memory.AsyncMemoryResource
     document: document.AsyncDocumentResource
     search: search.AsyncSearchResource
-    with_raw_response: AsyncPaprPythonSDKWithRawResponse
-    with_streaming_response: AsyncPaprPythonSDKWithStreamedResponse
+    with_raw_response: AsyncPaprWithRawResponse
+    with_streaming_response: AsyncPaprWithStreamedResponse
 
     # client options
     api_key: str
@@ -275,7 +266,7 @@ class AsyncPaprPythonSDK(AsyncAPIClient):
         # part of our public interface in the future.
         _strict_response_validation: bool = False,
     ) -> None:
-        """Construct a new async AsyncPaprPythonSDK client instance.
+        """Construct a new async AsyncPapr client instance.
 
         This automatically infers the following arguments from their corresponding environment variables if they are not provided:
         - `api_key` from `PAPR_PYTHON_SDK_API_KEY`
@@ -284,7 +275,7 @@ class AsyncPaprPythonSDK(AsyncAPIClient):
         if api_key is None:
             api_key = os.environ.get("PAPR_PYTHON_SDK_API_KEY")
         if api_key is None:
-            raise PaprPythonSDKError(
+            raise PaprError(
                 "The api_key client option must be set either by passing api_key to the client or by setting the PAPR_PYTHON_SDK_API_KEY environment variable"
             )
         self.api_key = api_key
@@ -292,15 +283,15 @@ class AsyncPaprPythonSDK(AsyncAPIClient):
         if bearer_token is None:
             bearer_token = os.environ.get("PAPR_PYTHON_SDK_BEARER_TOKEN")
         if bearer_token is None:
-            raise PaprPythonSDKError(
+            raise PaprError(
                 "The bearer_token client option must be set either by passing bearer_token to the client or by setting the PAPR_PYTHON_SDK_BEARER_TOKEN environment variable"
             )
         self.bearer_token = bearer_token
 
         if base_url is None:
-            base_url = os.environ.get("PAPR_PYTHON_SDK_BASE_URL")
+            base_url = os.environ.get("PAPR_BASE_URL")
         if base_url is None:
-            base_url = f"https://api.example.com"
+            base_url = f"https://memory.papr.ai"
 
         super().__init__(
             version=__version__,
@@ -317,8 +308,8 @@ class AsyncPaprPythonSDK(AsyncAPIClient):
         self.memory = memory.AsyncMemoryResource(self)
         self.document = document.AsyncDocumentResource(self)
         self.search = search.AsyncSearchResource(self)
-        self.with_raw_response = AsyncPaprPythonSDKWithRawResponse(self)
-        self.with_streaming_response = AsyncPaprPythonSDKWithStreamedResponse(self)
+        self.with_raw_response = AsyncPaprWithRawResponse(self)
+        self.with_streaming_response = AsyncPaprWithStreamedResponse(self)
 
     @property
     @override
@@ -436,38 +427,38 @@ class AsyncPaprPythonSDK(AsyncAPIClient):
         return APIStatusError(err_msg, response=response, body=body)
 
 
-class PaprPythonSDKWithRawResponse:
-    def __init__(self, client: PaprPythonSDK) -> None:
+class PaprWithRawResponse:
+    def __init__(self, client: Papr) -> None:
         self.user = user.UserResourceWithRawResponse(client.user)
         self.memory = memory.MemoryResourceWithRawResponse(client.memory)
         self.document = document.DocumentResourceWithRawResponse(client.document)
         self.search = search.SearchResourceWithRawResponse(client.search)
 
 
-class AsyncPaprPythonSDKWithRawResponse:
-    def __init__(self, client: AsyncPaprPythonSDK) -> None:
+class AsyncPaprWithRawResponse:
+    def __init__(self, client: AsyncPapr) -> None:
         self.user = user.AsyncUserResourceWithRawResponse(client.user)
         self.memory = memory.AsyncMemoryResourceWithRawResponse(client.memory)
         self.document = document.AsyncDocumentResourceWithRawResponse(client.document)
         self.search = search.AsyncSearchResourceWithRawResponse(client.search)
 
 
-class PaprPythonSDKWithStreamedResponse:
-    def __init__(self, client: PaprPythonSDK) -> None:
+class PaprWithStreamedResponse:
+    def __init__(self, client: Papr) -> None:
         self.user = user.UserResourceWithStreamingResponse(client.user)
         self.memory = memory.MemoryResourceWithStreamingResponse(client.memory)
         self.document = document.DocumentResourceWithStreamingResponse(client.document)
         self.search = search.SearchResourceWithStreamingResponse(client.search)
 
 
-class AsyncPaprPythonSDKWithStreamedResponse:
-    def __init__(self, client: AsyncPaprPythonSDK) -> None:
+class AsyncPaprWithStreamedResponse:
+    def __init__(self, client: AsyncPapr) -> None:
         self.user = user.AsyncUserResourceWithStreamingResponse(client.user)
         self.memory = memory.AsyncMemoryResourceWithStreamingResponse(client.memory)
         self.document = document.AsyncDocumentResourceWithStreamingResponse(client.document)
         self.search = search.AsyncSearchResourceWithStreamingResponse(client.search)
 
 
-Client = PaprPythonSDK
+Client = Papr
 
-AsyncClient = AsyncPaprPythonSDK
+AsyncClient = AsyncPapr

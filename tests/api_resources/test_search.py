@@ -8,7 +8,7 @@ from typing import Any, cast
 import pytest
 
 from tests.utils import assert_matches_type
-from papr_python_sdk import PaprPythonSDK, AsyncPaprPythonSDK
+from papr_python_sdk import Papr, AsyncPapr
 from papr_python_sdk.types import SearchResponse
 
 base_url = os.environ.get("TEST_API_BASE_URL", "http://127.0.0.1:4010")
@@ -19,16 +19,16 @@ class TestSearch:
 
     @pytest.mark.skip()
     @parametrize
-    def test_method_perform(self, client: PaprPythonSDK) -> None:
-        search = client.search.perform(
+    def test_method_search(self, client: Papr) -> None:
+        search = client.search.search(
             query="Find recurring customer complaints about API performance from the last month. Focus on issues where customers specifically mentioned timeout errors or slow response times in their conversations.",
         )
         assert_matches_type(SearchResponse, search, path=["response"])
 
     @pytest.mark.skip()
     @parametrize
-    def test_method_perform_with_all_params(self, client: PaprPythonSDK) -> None:
-        search = client.search.perform(
+    def test_method_search_with_all_params(self, client: Papr) -> None:
+        search = client.search.search(
             query="Find recurring customer complaints about API performance from the last month. Focus on issues where customers specifically mentioned timeout errors or slow response times in their conversations.",
             max_memories=1,
             max_nodes=1,
@@ -39,8 +39,8 @@ class TestSearch:
 
     @pytest.mark.skip()
     @parametrize
-    def test_raw_response_perform(self, client: PaprPythonSDK) -> None:
-        response = client.search.with_raw_response.perform(
+    def test_raw_response_search(self, client: Papr) -> None:
+        response = client.search.with_raw_response.search(
             query="Find recurring customer complaints about API performance from the last month. Focus on issues where customers specifically mentioned timeout errors or slow response times in their conversations.",
         )
 
@@ -51,8 +51,8 @@ class TestSearch:
 
     @pytest.mark.skip()
     @parametrize
-    def test_streaming_response_perform(self, client: PaprPythonSDK) -> None:
-        with client.search.with_streaming_response.perform(
+    def test_streaming_response_search(self, client: Papr) -> None:
+        with client.search.with_streaming_response.search(
             query="Find recurring customer complaints about API performance from the last month. Focus on issues where customers specifically mentioned timeout errors or slow response times in their conversations.",
         ) as response:
             assert not response.is_closed
@@ -69,16 +69,16 @@ class TestAsyncSearch:
 
     @pytest.mark.skip()
     @parametrize
-    async def test_method_perform(self, async_client: AsyncPaprPythonSDK) -> None:
-        search = await async_client.search.perform(
+    async def test_method_search(self, async_client: AsyncPapr) -> None:
+        search = await async_client.search.search(
             query="Find recurring customer complaints about API performance from the last month. Focus on issues where customers specifically mentioned timeout errors or slow response times in their conversations.",
         )
         assert_matches_type(SearchResponse, search, path=["response"])
 
     @pytest.mark.skip()
     @parametrize
-    async def test_method_perform_with_all_params(self, async_client: AsyncPaprPythonSDK) -> None:
-        search = await async_client.search.perform(
+    async def test_method_search_with_all_params(self, async_client: AsyncPapr) -> None:
+        search = await async_client.search.search(
             query="Find recurring customer complaints about API performance from the last month. Focus on issues where customers specifically mentioned timeout errors or slow response times in their conversations.",
             max_memories=1,
             max_nodes=1,
@@ -89,8 +89,8 @@ class TestAsyncSearch:
 
     @pytest.mark.skip()
     @parametrize
-    async def test_raw_response_perform(self, async_client: AsyncPaprPythonSDK) -> None:
-        response = await async_client.search.with_raw_response.perform(
+    async def test_raw_response_search(self, async_client: AsyncPapr) -> None:
+        response = await async_client.search.with_raw_response.search(
             query="Find recurring customer complaints about API performance from the last month. Focus on issues where customers specifically mentioned timeout errors or slow response times in their conversations.",
         )
 
@@ -101,8 +101,8 @@ class TestAsyncSearch:
 
     @pytest.mark.skip()
     @parametrize
-    async def test_streaming_response_perform(self, async_client: AsyncPaprPythonSDK) -> None:
-        async with async_client.search.with_streaming_response.perform(
+    async def test_streaming_response_search(self, async_client: AsyncPapr) -> None:
+        async with async_client.search.with_streaming_response.search(
             query="Find recurring customer complaints about API performance from the last month. Focus on issues where customers specifically mentioned timeout errors or slow response times in their conversations.",
         ) as response:
             assert not response.is_closed

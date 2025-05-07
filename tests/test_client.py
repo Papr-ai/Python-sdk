@@ -21,12 +21,12 @@ import pytest
 from respx import MockRouter
 from pydantic import ValidationError
 
-from papr_python_sdk import PaprPythonSDK, AsyncPaprPythonSDK, APIResponseValidationError
+from papr_python_sdk import Papr, AsyncPapr, APIResponseValidationError
 from papr_python_sdk._types import Omit
 from papr_python_sdk._utils import maybe_transform
 from papr_python_sdk._models import BaseModel, FinalRequestOptions
 from papr_python_sdk._constants import RAW_RESPONSE_HEADER
-from papr_python_sdk._exceptions import APIStatusError, APITimeoutError, PaprPythonSDKError, APIResponseValidationError
+from papr_python_sdk._exceptions import PaprError, APIStatusError, APITimeoutError, APIResponseValidationError
 from papr_python_sdk._base_client import (
     DEFAULT_TIMEOUT,
     HTTPX_DEFAULT_TIMEOUT,
@@ -52,7 +52,7 @@ def _low_retry_timeout(*_args: Any, **_kwargs: Any) -> float:
     return 0.1
 
 
-def _get_open_connections(client: PaprPythonSDK | AsyncPaprPythonSDK) -> int:
+def _get_open_connections(client: Papr | AsyncPapr) -> int:
     transport = client._client._transport
     assert isinstance(transport, httpx.HTTPTransport) or isinstance(transport, httpx.AsyncHTTPTransport)
 
@@ -60,10 +60,8 @@ def _get_open_connections(client: PaprPythonSDK | AsyncPaprPythonSDK) -> int:
     return len(pool._requests)
 
 
-class TestPaprPythonSDK:
-    client = PaprPythonSDK(
-        base_url=base_url, api_key=api_key, bearer_token=bearer_token, _strict_response_validation=True
-    )
+class TestPapr:
+    client = Papr(base_url=base_url, api_key=api_key, bearer_token=bearer_token, _strict_response_validation=True)
 
     @pytest.mark.respx(base_url=base_url)
     def test_raw_response(self, respx_mock: MockRouter) -> None:
@@ -114,7 +112,7 @@ class TestPaprPythonSDK:
         assert isinstance(self.client.timeout, httpx.Timeout)
 
     def test_copy_default_headers(self) -> None:
-        client = PaprPythonSDK(
+        client = Papr(
             base_url=base_url,
             api_key=api_key,
             bearer_token=bearer_token,
@@ -152,7 +150,7 @@ class TestPaprPythonSDK:
             client.copy(set_default_headers={}, default_headers={"X-Foo": "Bar"})
 
     def test_copy_default_query(self) -> None:
-        client = PaprPythonSDK(
+        client = Papr(
             base_url=base_url,
             api_key=api_key,
             bearer_token=bearer_token,
@@ -281,7 +279,7 @@ class TestPaprPythonSDK:
         assert timeout == httpx.Timeout(100.0)
 
     def test_client_timeout_option(self) -> None:
-        client = PaprPythonSDK(
+        client = Papr(
             base_url=base_url,
             api_key=api_key,
             bearer_token=bearer_token,
@@ -296,7 +294,7 @@ class TestPaprPythonSDK:
     def test_http_client_timeout_option(self) -> None:
         # custom timeout given to the httpx client should be used
         with httpx.Client(timeout=None) as http_client:
-            client = PaprPythonSDK(
+            client = Papr(
                 base_url=base_url,
                 api_key=api_key,
                 bearer_token=bearer_token,
@@ -310,7 +308,7 @@ class TestPaprPythonSDK:
 
         # no timeout given to the httpx client should not use the httpx default
         with httpx.Client() as http_client:
-            client = PaprPythonSDK(
+            client = Papr(
                 base_url=base_url,
                 api_key=api_key,
                 bearer_token=bearer_token,
@@ -324,7 +322,7 @@ class TestPaprPythonSDK:
 
         # explicitly passing the default timeout currently results in it being ignored
         with httpx.Client(timeout=HTTPX_DEFAULT_TIMEOUT) as http_client:
-            client = PaprPythonSDK(
+            client = Papr(
                 base_url=base_url,
                 api_key=api_key,
                 bearer_token=bearer_token,
@@ -339,7 +337,7 @@ class TestPaprPythonSDK:
     async def test_invalid_http_client(self) -> None:
         with pytest.raises(TypeError, match="Invalid `http_client` arg"):
             async with httpx.AsyncClient() as http_client:
-                PaprPythonSDK(
+                Papr(
                     base_url=base_url,
                     api_key=api_key,
                     bearer_token=bearer_token,
@@ -348,7 +346,7 @@ class TestPaprPythonSDK:
                 )
 
     def test_default_headers_option(self) -> None:
-        client = PaprPythonSDK(
+        client = Papr(
             base_url=base_url,
             api_key=api_key,
             bearer_token=bearer_token,
@@ -359,7 +357,7 @@ class TestPaprPythonSDK:
         assert request.headers.get("x-foo") == "bar"
         assert request.headers.get("x-stainless-lang") == "python"
 
-        client2 = PaprPythonSDK(
+        client2 = Papr(
             base_url=base_url,
             api_key=api_key,
             bearer_token=bearer_token,
@@ -374,28 +372,24 @@ class TestPaprPythonSDK:
         assert request.headers.get("x-stainless-lang") == "my-overriding-header"
 
     def test_validate_headers(self) -> None:
-        client = PaprPythonSDK(
-            base_url=base_url, api_key=api_key, bearer_token=bearer_token, _strict_response_validation=True
-        )
+        client = Papr(base_url=base_url, api_key=api_key, bearer_token=bearer_token, _strict_response_validation=True)
         request = client._build_request(FinalRequestOptions(method="get", url="/foo"))
         assert request.headers.get("X-API-Key") == api_key
         request = client._build_request(FinalRequestOptions(method="get", url="/foo"))
         assert request.headers.get("Authorization") == f"Bearer {bearer_token}"
 
-        with pytest.raises(PaprPythonSDKError):
+        with pytest.raises(PaprError):
             with update_env(
                 **{
                     "PAPR_PYTHON_SDK_API_KEY": Omit(),
                     "PAPR_PYTHON_SDK_BEARER_TOKEN": Omit(),
                 }
             ):
-                client2 = PaprPythonSDK(
-                    base_url=base_url, api_key=None, bearer_token=None, _strict_response_validation=True
-                )
+                client2 = Papr(base_url=base_url, api_key=None, bearer_token=None, _strict_response_validation=True)
             _ = client2
 
     def test_default_query_option(self) -> None:
-        client = PaprPythonSDK(
+        client = Papr(
             base_url=base_url,
             api_key=api_key,
             bearer_token=bearer_token,
@@ -513,7 +507,7 @@ class TestPaprPythonSDK:
         params = dict(request.url.params)
         assert params == {"foo": "2"}
 
-    def test_multipart_repeating_array(self, client: PaprPythonSDK) -> None:
+    def test_multipart_repeating_array(self, client: Papr) -> None:
         request = client._build_request(
             FinalRequestOptions.construct(
                 method="get",
@@ -600,7 +594,7 @@ class TestPaprPythonSDK:
         assert response.foo == 2
 
     def test_base_url_setter(self) -> None:
-        client = PaprPythonSDK(
+        client = Papr(
             base_url="https://example.com/from_init",
             api_key=api_key,
             bearer_token=bearer_token,
@@ -613,20 +607,20 @@ class TestPaprPythonSDK:
         assert client.base_url == "https://example.com/from_setter/"
 
     def test_base_url_env(self) -> None:
-        with update_env(PAPR_PYTHON_SDK_BASE_URL="http://localhost:5000/from/env"):
-            client = PaprPythonSDK(api_key=api_key, bearer_token=bearer_token, _strict_response_validation=True)
+        with update_env(PAPR_BASE_URL="http://localhost:5000/from/env"):
+            client = Papr(api_key=api_key, bearer_token=bearer_token, _strict_response_validation=True)
             assert client.base_url == "http://localhost:5000/from/env/"
 
     @pytest.mark.parametrize(
         "client",
         [
-            PaprPythonSDK(
+            Papr(
                 base_url="http://localhost:5000/custom/path/",
                 api_key=api_key,
                 bearer_token=bearer_token,
                 _strict_response_validation=True,
             ),
-            PaprPythonSDK(
+            Papr(
                 base_url="http://localhost:5000/custom/path/",
                 api_key=api_key,
                 bearer_token=bearer_token,
@@ -636,7 +630,7 @@ class TestPaprPythonSDK:
         ],
         ids=["standard", "custom http client"],
     )
-    def test_base_url_trailing_slash(self, client: PaprPythonSDK) -> None:
+    def test_base_url_trailing_slash(self, client: Papr) -> None:
         request = client._build_request(
             FinalRequestOptions(
                 method="post",
@@ -649,13 +643,13 @@ class TestPaprPythonSDK:
     @pytest.mark.parametrize(
         "client",
         [
-            PaprPythonSDK(
+            Papr(
                 base_url="http://localhost:5000/custom/path/",
                 api_key=api_key,
                 bearer_token=bearer_token,
                 _strict_response_validation=True,
             ),
-            PaprPythonSDK(
+            Papr(
                 base_url="http://localhost:5000/custom/path/",
                 api_key=api_key,
                 bearer_token=bearer_token,
@@ -665,7 +659,7 @@ class TestPaprPythonSDK:
         ],
         ids=["standard", "custom http client"],
     )
-    def test_base_url_no_trailing_slash(self, client: PaprPythonSDK) -> None:
+    def test_base_url_no_trailing_slash(self, client: Papr) -> None:
         request = client._build_request(
             FinalRequestOptions(
                 method="post",
@@ -678,13 +672,13 @@ class TestPaprPythonSDK:
     @pytest.mark.parametrize(
         "client",
         [
-            PaprPythonSDK(
+            Papr(
                 base_url="http://localhost:5000/custom/path/",
                 api_key=api_key,
                 bearer_token=bearer_token,
                 _strict_response_validation=True,
             ),
-            PaprPythonSDK(
+            Papr(
                 base_url="http://localhost:5000/custom/path/",
                 api_key=api_key,
                 bearer_token=bearer_token,
@@ -694,7 +688,7 @@ class TestPaprPythonSDK:
         ],
         ids=["standard", "custom http client"],
     )
-    def test_absolute_request_url(self, client: PaprPythonSDK) -> None:
+    def test_absolute_request_url(self, client: Papr) -> None:
         request = client._build_request(
             FinalRequestOptions(
                 method="post",
@@ -705,9 +699,7 @@ class TestPaprPythonSDK:
         assert request.url == "https://myapi.com/foo"
 
     def test_copied_client_does_not_close_http(self) -> None:
-        client = PaprPythonSDK(
-            base_url=base_url, api_key=api_key, bearer_token=bearer_token, _strict_response_validation=True
-        )
+        client = Papr(base_url=base_url, api_key=api_key, bearer_token=bearer_token, _strict_response_validation=True)
         assert not client.is_closed()
 
         copied = client.copy()
@@ -718,9 +710,7 @@ class TestPaprPythonSDK:
         assert not client.is_closed()
 
     def test_client_context_manager(self) -> None:
-        client = PaprPythonSDK(
-            base_url=base_url, api_key=api_key, bearer_token=bearer_token, _strict_response_validation=True
-        )
+        client = Papr(base_url=base_url, api_key=api_key, bearer_token=bearer_token, _strict_response_validation=True)
         with client as c2:
             assert c2 is client
             assert not c2.is_closed()
@@ -741,7 +731,7 @@ class TestPaprPythonSDK:
 
     def test_client_max_retries_validation(self) -> None:
         with pytest.raises(TypeError, match=r"max_retries cannot be None"):
-            PaprPythonSDK(
+            Papr(
                 base_url=base_url,
                 api_key=api_key,
                 bearer_token=bearer_token,
@@ -756,16 +746,14 @@ class TestPaprPythonSDK:
 
         respx_mock.get("/foo").mock(return_value=httpx.Response(200, text="my-custom-format"))
 
-        strict_client = PaprPythonSDK(
+        strict_client = Papr(
             base_url=base_url, api_key=api_key, bearer_token=bearer_token, _strict_response_validation=True
         )
 
         with pytest.raises(APIResponseValidationError):
             strict_client.get("/foo", cast_to=Model)
 
-        client = PaprPythonSDK(
-            base_url=base_url, api_key=api_key, bearer_token=bearer_token, _strict_response_validation=False
-        )
+        client = Papr(base_url=base_url, api_key=api_key, bearer_token=bearer_token, _strict_response_validation=False)
 
         response = client.get("/foo", cast_to=Model)
         assert isinstance(response, str)  # type: ignore[unreachable]
@@ -793,9 +781,7 @@ class TestPaprPythonSDK:
     )
     @mock.patch("time.time", mock.MagicMock(return_value=1696004797))
     def test_parse_retry_after_header(self, remaining_retries: int, retry_after: str, timeout: float) -> None:
-        client = PaprPythonSDK(
-            base_url=base_url, api_key=api_key, bearer_token=bearer_token, _strict_response_validation=True
-        )
+        client = Papr(base_url=base_url, api_key=api_key, bearer_token=bearer_token, _strict_response_validation=True)
 
         headers = httpx.Headers({"retry-after": retry_after})
         options = FinalRequestOptions(method="get", url="/foo", max_retries=3)
@@ -838,7 +824,7 @@ class TestPaprPythonSDK:
     @pytest.mark.parametrize("failure_mode", ["status", "exception"])
     def test_retries_taken(
         self,
-        client: PaprPythonSDK,
+        client: Papr,
         failures_before_success: int,
         failure_mode: Literal["status", "exception"],
         respx_mock: MockRouter,
@@ -866,9 +852,7 @@ class TestPaprPythonSDK:
     @pytest.mark.parametrize("failures_before_success", [0, 2, 4])
     @mock.patch("papr_python_sdk._base_client.BaseClient._calculate_retry_timeout", _low_retry_timeout)
     @pytest.mark.respx(base_url=base_url)
-    def test_omit_retry_count_header(
-        self, client: PaprPythonSDK, failures_before_success: int, respx_mock: MockRouter
-    ) -> None:
+    def test_omit_retry_count_header(self, client: Papr, failures_before_success: int, respx_mock: MockRouter) -> None:
         client = client.with_options(max_retries=4)
 
         nb_retries = 0
@@ -892,7 +876,7 @@ class TestPaprPythonSDK:
     @mock.patch("papr_python_sdk._base_client.BaseClient._calculate_retry_timeout", _low_retry_timeout)
     @pytest.mark.respx(base_url=base_url)
     def test_overwrite_retry_count_header(
-        self, client: PaprPythonSDK, failures_before_success: int, respx_mock: MockRouter
+        self, client: Papr, failures_before_success: int, respx_mock: MockRouter
     ) -> None:
         client = client.with_options(max_retries=4)
 
@@ -914,10 +898,8 @@ class TestPaprPythonSDK:
         assert response.http_request.headers.get("x-stainless-retry-count") == "42"
 
 
-class TestAsyncPaprPythonSDK:
-    client = AsyncPaprPythonSDK(
-        base_url=base_url, api_key=api_key, bearer_token=bearer_token, _strict_response_validation=True
-    )
+class TestAsyncPapr:
+    client = AsyncPapr(base_url=base_url, api_key=api_key, bearer_token=bearer_token, _strict_response_validation=True)
 
     @pytest.mark.respx(base_url=base_url)
     @pytest.mark.asyncio
@@ -970,7 +952,7 @@ class TestAsyncPaprPythonSDK:
         assert isinstance(self.client.timeout, httpx.Timeout)
 
     def test_copy_default_headers(self) -> None:
-        client = AsyncPaprPythonSDK(
+        client = AsyncPapr(
             base_url=base_url,
             api_key=api_key,
             bearer_token=bearer_token,
@@ -1008,7 +990,7 @@ class TestAsyncPaprPythonSDK:
             client.copy(set_default_headers={}, default_headers={"X-Foo": "Bar"})
 
     def test_copy_default_query(self) -> None:
-        client = AsyncPaprPythonSDK(
+        client = AsyncPapr(
             base_url=base_url,
             api_key=api_key,
             bearer_token=bearer_token,
@@ -1137,7 +1119,7 @@ class TestAsyncPaprPythonSDK:
         assert timeout == httpx.Timeout(100.0)
 
     async def test_client_timeout_option(self) -> None:
-        client = AsyncPaprPythonSDK(
+        client = AsyncPapr(
             base_url=base_url,
             api_key=api_key,
             bearer_token=bearer_token,
@@ -1152,7 +1134,7 @@ class TestAsyncPaprPythonSDK:
     async def test_http_client_timeout_option(self) -> None:
         # custom timeout given to the httpx client should be used
         async with httpx.AsyncClient(timeout=None) as http_client:
-            client = AsyncPaprPythonSDK(
+            client = AsyncPapr(
                 base_url=base_url,
                 api_key=api_key,
                 bearer_token=bearer_token,
@@ -1166,7 +1148,7 @@ class TestAsyncPaprPythonSDK:
 
         # no timeout given to the httpx client should not use the httpx default
         async with httpx.AsyncClient() as http_client:
-            client = AsyncPaprPythonSDK(
+            client = AsyncPapr(
                 base_url=base_url,
                 api_key=api_key,
                 bearer_token=bearer_token,
@@ -1180,7 +1162,7 @@ class TestAsyncPaprPythonSDK:
 
         # explicitly passing the default timeout currently results in it being ignored
         async with httpx.AsyncClient(timeout=HTTPX_DEFAULT_TIMEOUT) as http_client:
-            client = AsyncPaprPythonSDK(
+            client = AsyncPapr(
                 base_url=base_url,
                 api_key=api_key,
                 bearer_token=bearer_token,
@@ -1195,7 +1177,7 @@ class TestAsyncPaprPythonSDK:
     def test_invalid_http_client(self) -> None:
         with pytest.raises(TypeError, match="Invalid `http_client` arg"):
             with httpx.Client() as http_client:
-                AsyncPaprPythonSDK(
+                AsyncPapr(
                     base_url=base_url,
                     api_key=api_key,
                     bearer_token=bearer_token,
@@ -1204,7 +1186,7 @@ class TestAsyncPaprPythonSDK:
                 )
 
     def test_default_headers_option(self) -> None:
-        client = AsyncPaprPythonSDK(
+        client = AsyncPapr(
             base_url=base_url,
             api_key=api_key,
             bearer_token=bearer_token,
@@ -1215,7 +1197,7 @@ class TestAsyncPaprPythonSDK:
         assert request.headers.get("x-foo") == "bar"
         assert request.headers.get("x-stainless-lang") == "python"
 
-        client2 = AsyncPaprPythonSDK(
+        client2 = AsyncPapr(
             base_url=base_url,
             api_key=api_key,
             bearer_token=bearer_token,
@@ -1230,7 +1212,7 @@ class TestAsyncPaprPythonSDK:
         assert request.headers.get("x-stainless-lang") == "my-overriding-header"
 
     def test_validate_headers(self) -> None:
-        client = AsyncPaprPythonSDK(
+        client = AsyncPapr(
             base_url=base_url, api_key=api_key, bearer_token=bearer_token, _strict_response_validation=True
         )
         request = client._build_request(FinalRequestOptions(method="get", url="/foo"))
@@ -1238,20 +1220,20 @@ class TestAsyncPaprPythonSDK:
         request = client._build_request(FinalRequestOptions(method="get", url="/foo"))
         assert request.headers.get("Authorization") == f"Bearer {bearer_token}"
 
-        with pytest.raises(PaprPythonSDKError):
+        with pytest.raises(PaprError):
             with update_env(
                 **{
                     "PAPR_PYTHON_SDK_API_KEY": Omit(),
                     "PAPR_PYTHON_SDK_BEARER_TOKEN": Omit(),
                 }
             ):
-                client2 = AsyncPaprPythonSDK(
+                client2 = AsyncPapr(
                     base_url=base_url, api_key=None, bearer_token=None, _strict_response_validation=True
                 )
             _ = client2
 
     def test_default_query_option(self) -> None:
-        client = AsyncPaprPythonSDK(
+        client = AsyncPapr(
             base_url=base_url,
             api_key=api_key,
             bearer_token=bearer_token,
@@ -1369,7 +1351,7 @@ class TestAsyncPaprPythonSDK:
         params = dict(request.url.params)
         assert params == {"foo": "2"}
 
-    def test_multipart_repeating_array(self, async_client: AsyncPaprPythonSDK) -> None:
+    def test_multipart_repeating_array(self, async_client: AsyncPapr) -> None:
         request = async_client._build_request(
             FinalRequestOptions.construct(
                 method="get",
@@ -1456,7 +1438,7 @@ class TestAsyncPaprPythonSDK:
         assert response.foo == 2
 
     def test_base_url_setter(self) -> None:
-        client = AsyncPaprPythonSDK(
+        client = AsyncPapr(
             base_url="https://example.com/from_init",
             api_key=api_key,
             bearer_token=bearer_token,
@@ -1469,20 +1451,20 @@ class TestAsyncPaprPythonSDK:
         assert client.base_url == "https://example.com/from_setter/"
 
     def test_base_url_env(self) -> None:
-        with update_env(PAPR_PYTHON_SDK_BASE_URL="http://localhost:5000/from/env"):
-            client = AsyncPaprPythonSDK(api_key=api_key, bearer_token=bearer_token, _strict_response_validation=True)
+        with update_env(PAPR_BASE_URL="http://localhost:5000/from/env"):
+            client = AsyncPapr(api_key=api_key, bearer_token=bearer_token, _strict_response_validation=True)
             assert client.base_url == "http://localhost:5000/from/env/"
 
     @pytest.mark.parametrize(
         "client",
         [
-            AsyncPaprPythonSDK(
+            AsyncPapr(
                 base_url="http://localhost:5000/custom/path/",
                 api_key=api_key,
                 bearer_token=bearer_token,
                 _strict_response_validation=True,
             ),
-            AsyncPaprPythonSDK(
+            AsyncPapr(
                 base_url="http://localhost:5000/custom/path/",
                 api_key=api_key,
                 bearer_token=bearer_token,
@@ -1492,7 +1474,7 @@ class TestAsyncPaprPythonSDK:
         ],
         ids=["standard", "custom http client"],
     )
-    def test_base_url_trailing_slash(self, client: AsyncPaprPythonSDK) -> None:
+    def test_base_url_trailing_slash(self, client: AsyncPapr) -> None:
         request = client._build_request(
             FinalRequestOptions(
                 method="post",
@@ -1505,13 +1487,13 @@ class TestAsyncPaprPythonSDK:
     @pytest.mark.parametrize(
         "client",
         [
-            AsyncPaprPythonSDK(
+            AsyncPapr(
                 base_url="http://localhost:5000/custom/path/",
                 api_key=api_key,
                 bearer_token=bearer_token,
                 _strict_response_validation=True,
             ),
-            AsyncPaprPythonSDK(
+            AsyncPapr(
                 base_url="http://localhost:5000/custom/path/",
                 api_key=api_key,
                 bearer_token=bearer_token,
@@ -1521,7 +1503,7 @@ class TestAsyncPaprPythonSDK:
         ],
         ids=["standard", "custom http client"],
     )
-    def test_base_url_no_trailing_slash(self, client: AsyncPaprPythonSDK) -> None:
+    def test_base_url_no_trailing_slash(self, client: AsyncPapr) -> None:
         request = client._build_request(
             FinalRequestOptions(
                 method="post",
@@ -1534,13 +1516,13 @@ class TestAsyncPaprPythonSDK:
     @pytest.mark.parametrize(
         "client",
         [
-            AsyncPaprPythonSDK(
+            AsyncPapr(
                 base_url="http://localhost:5000/custom/path/",
                 api_key=api_key,
                 bearer_token=bearer_token,
                 _strict_response_validation=True,
             ),
-            AsyncPaprPythonSDK(
+            AsyncPapr(
                 base_url="http://localhost:5000/custom/path/",
                 api_key=api_key,
                 bearer_token=bearer_token,
@@ -1550,7 +1532,7 @@ class TestAsyncPaprPythonSDK:
         ],
         ids=["standard", "custom http client"],
     )
-    def test_absolute_request_url(self, client: AsyncPaprPythonSDK) -> None:
+    def test_absolute_request_url(self, client: AsyncPapr) -> None:
         request = client._build_request(
             FinalRequestOptions(
                 method="post",
@@ -1561,7 +1543,7 @@ class TestAsyncPaprPythonSDK:
         assert request.url == "https://myapi.com/foo"
 
     async def test_copied_client_does_not_close_http(self) -> None:
-        client = AsyncPaprPythonSDK(
+        client = AsyncPapr(
             base_url=base_url, api_key=api_key, bearer_token=bearer_token, _strict_response_validation=True
         )
         assert not client.is_closed()
@@ -1575,7 +1557,7 @@ class TestAsyncPaprPythonSDK:
         assert not client.is_closed()
 
     async def test_client_context_manager(self) -> None:
-        client = AsyncPaprPythonSDK(
+        client = AsyncPapr(
             base_url=base_url, api_key=api_key, bearer_token=bearer_token, _strict_response_validation=True
         )
         async with client as c2:
@@ -1599,7 +1581,7 @@ class TestAsyncPaprPythonSDK:
 
     async def test_client_max_retries_validation(self) -> None:
         with pytest.raises(TypeError, match=r"max_retries cannot be None"):
-            AsyncPaprPythonSDK(
+            AsyncPapr(
                 base_url=base_url,
                 api_key=api_key,
                 bearer_token=bearer_token,
@@ -1615,14 +1597,14 @@ class TestAsyncPaprPythonSDK:
 
         respx_mock.get("/foo").mock(return_value=httpx.Response(200, text="my-custom-format"))
 
-        strict_client = AsyncPaprPythonSDK(
+        strict_client = AsyncPapr(
             base_url=base_url, api_key=api_key, bearer_token=bearer_token, _strict_response_validation=True
         )
 
         with pytest.raises(APIResponseValidationError):
             await strict_client.get("/foo", cast_to=Model)
 
-        client = AsyncPaprPythonSDK(
+        client = AsyncPapr(
             base_url=base_url, api_key=api_key, bearer_token=bearer_token, _strict_response_validation=False
         )
 
@@ -1653,7 +1635,7 @@ class TestAsyncPaprPythonSDK:
     @mock.patch("time.time", mock.MagicMock(return_value=1696004797))
     @pytest.mark.asyncio
     async def test_parse_retry_after_header(self, remaining_retries: int, retry_after: str, timeout: float) -> None:
-        client = AsyncPaprPythonSDK(
+        client = AsyncPapr(
             base_url=base_url, api_key=api_key, bearer_token=bearer_token, _strict_response_validation=True
         )
 
@@ -1699,7 +1681,7 @@ class TestAsyncPaprPythonSDK:
     @pytest.mark.parametrize("failure_mode", ["status", "exception"])
     async def test_retries_taken(
         self,
-        async_client: AsyncPaprPythonSDK,
+        async_client: AsyncPapr,
         failures_before_success: int,
         failure_mode: Literal["status", "exception"],
         respx_mock: MockRouter,
@@ -1729,7 +1711,7 @@ class TestAsyncPaprPythonSDK:
     @pytest.mark.respx(base_url=base_url)
     @pytest.mark.asyncio
     async def test_omit_retry_count_header(
-        self, async_client: AsyncPaprPythonSDK, failures_before_success: int, respx_mock: MockRouter
+        self, async_client: AsyncPapr, failures_before_success: int, respx_mock: MockRouter
     ) -> None:
         client = async_client.with_options(max_retries=4)
 
@@ -1755,7 +1737,7 @@ class TestAsyncPaprPythonSDK:
     @pytest.mark.respx(base_url=base_url)
     @pytest.mark.asyncio
     async def test_overwrite_retry_count_header(
-        self, async_client: AsyncPaprPythonSDK, failures_before_success: int, respx_mock: MockRouter
+        self, async_client: AsyncPapr, failures_before_success: int, respx_mock: MockRouter
     ) -> None:
         client = async_client.with_options(max_retries=4)
 

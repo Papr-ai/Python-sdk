@@ -8,13 +8,13 @@ from typing import Any, cast
 import pytest
 
 from tests.utils import assert_matches_type
-from papr_python_sdk import PaprPythonSDK, AsyncPaprPythonSDK
+from papr_python_sdk import Papr, AsyncPapr
 from papr_python_sdk.types import (
     SearchResponse,
     AddMemoryResponse,
     MemoryDeleteResponse,
     MemoryUpdateResponse,
-    MemoryCreateBatchResponse,
+    MemoryAddBatchResponse,
 )
 
 base_url = os.environ.get("TEST_API_BASE_URL", "http://127.0.0.1:4010")
@@ -25,85 +25,7 @@ class TestMemory:
 
     @pytest.mark.skip()
     @parametrize
-    def test_method_create(self, client: PaprPythonSDK) -> None:
-        memory = client.memory.create(
-            content="Meeting notes from the product planning session",
-        )
-        assert_matches_type(AddMemoryResponse, memory, path=["response"])
-
-    @pytest.mark.skip()
-    @parametrize
-    def test_method_create_with_all_params(self, client: PaprPythonSDK) -> None:
-        memory = client.memory.create(
-            content="Meeting notes from the product planning session",
-            skip_background_processing=True,
-            context=[
-                {
-                    "content": "Let's discuss the Q2 product roadmap",
-                    "role": "user",
-                },
-                {
-                    "content": "I'll help you plan the roadmap. What are your key objectives?",
-                    "role": "assistant",
-                },
-            ],
-            metadata={
-                "conversation_id": "conv-123",
-                "created_at": "2024-03-21T10:00:00Z",
-                "emoji_tags": "📊,💡,📝",
-                "emotion_tags": "focused, productive",
-                "hierarchical_structures": "hierarchical_structures",
-                "location": "Conference Room A",
-                "role_read_access": ["string"],
-                "role_write_access": ["string"],
-                "source_url": "https://meeting-notes.example.com/123",
-                "topics": "product, planning",
-                "user_read_access": ["string"],
-                "user_write_access": ["string"],
-                "workspace_read_access": ["string"],
-                "workspace_write_access": ["string"],
-            },
-            relationships_json=[
-                {
-                    "related_item_id": "previous_memory_item_id",
-                    "related_item_type": "TextMemoryItem",
-                    "relation_type": "follows",
-                    "metadata": {"relevance": "high"},
-                }
-            ],
-            type="text",
-        )
-        assert_matches_type(AddMemoryResponse, memory, path=["response"])
-
-    @pytest.mark.skip()
-    @parametrize
-    def test_raw_response_create(self, client: PaprPythonSDK) -> None:
-        response = client.memory.with_raw_response.create(
-            content="Meeting notes from the product planning session",
-        )
-
-        assert response.is_closed is True
-        assert response.http_request.headers.get("X-Stainless-Lang") == "python"
-        memory = response.parse()
-        assert_matches_type(AddMemoryResponse, memory, path=["response"])
-
-    @pytest.mark.skip()
-    @parametrize
-    def test_streaming_response_create(self, client: PaprPythonSDK) -> None:
-        with client.memory.with_streaming_response.create(
-            content="Meeting notes from the product planning session",
-        ) as response:
-            assert not response.is_closed
-            assert response.http_request.headers.get("X-Stainless-Lang") == "python"
-
-            memory = response.parse()
-            assert_matches_type(AddMemoryResponse, memory, path=["response"])
-
-        assert cast(Any, response.is_closed) is True
-
-    @pytest.mark.skip()
-    @parametrize
-    def test_method_retrieve(self, client: PaprPythonSDK) -> None:
+    def test_method_retrieve(self, client: Papr) -> None:
         memory = client.memory.retrieve(
             "memory_id",
         )
@@ -111,7 +33,7 @@ class TestMemory:
 
     @pytest.mark.skip()
     @parametrize
-    def test_raw_response_retrieve(self, client: PaprPythonSDK) -> None:
+    def test_raw_response_retrieve(self, client: Papr) -> None:
         response = client.memory.with_raw_response.retrieve(
             "memory_id",
         )
@@ -123,7 +45,7 @@ class TestMemory:
 
     @pytest.mark.skip()
     @parametrize
-    def test_streaming_response_retrieve(self, client: PaprPythonSDK) -> None:
+    def test_streaming_response_retrieve(self, client: Papr) -> None:
         with client.memory.with_streaming_response.retrieve(
             "memory_id",
         ) as response:
@@ -137,7 +59,7 @@ class TestMemory:
 
     @pytest.mark.skip()
     @parametrize
-    def test_path_params_retrieve(self, client: PaprPythonSDK) -> None:
+    def test_path_params_retrieve(self, client: Papr) -> None:
         with pytest.raises(ValueError, match=r"Expected a non-empty value for `memory_id` but received ''"):
             client.memory.with_raw_response.retrieve(
                 "",
@@ -145,7 +67,7 @@ class TestMemory:
 
     @pytest.mark.skip()
     @parametrize
-    def test_method_update(self, client: PaprPythonSDK) -> None:
+    def test_method_update(self, client: Papr) -> None:
         memory = client.memory.update(
             memory_id="memory_id",
         )
@@ -153,7 +75,7 @@ class TestMemory:
 
     @pytest.mark.skip()
     @parametrize
-    def test_method_update_with_all_params(self, client: PaprPythonSDK) -> None:
+    def test_method_update_with_all_params(self, client: Papr) -> None:
         memory = client.memory.update(
             memory_id="memory_id",
             content="Updated meeting notes from the product planning session",
@@ -197,7 +119,7 @@ class TestMemory:
 
     @pytest.mark.skip()
     @parametrize
-    def test_raw_response_update(self, client: PaprPythonSDK) -> None:
+    def test_raw_response_update(self, client: Papr) -> None:
         response = client.memory.with_raw_response.update(
             memory_id="memory_id",
         )
@@ -209,7 +131,7 @@ class TestMemory:
 
     @pytest.mark.skip()
     @parametrize
-    def test_streaming_response_update(self, client: PaprPythonSDK) -> None:
+    def test_streaming_response_update(self, client: Papr) -> None:
         with client.memory.with_streaming_response.update(
             memory_id="memory_id",
         ) as response:
@@ -223,7 +145,7 @@ class TestMemory:
 
     @pytest.mark.skip()
     @parametrize
-    def test_path_params_update(self, client: PaprPythonSDK) -> None:
+    def test_path_params_update(self, client: Papr) -> None:
         with pytest.raises(ValueError, match=r"Expected a non-empty value for `memory_id` but received ''"):
             client.memory.with_raw_response.update(
                 memory_id="",
@@ -231,7 +153,7 @@ class TestMemory:
 
     @pytest.mark.skip()
     @parametrize
-    def test_method_delete(self, client: PaprPythonSDK) -> None:
+    def test_method_delete(self, client: Papr) -> None:
         memory = client.memory.delete(
             memory_id="memory_id",
         )
@@ -239,7 +161,7 @@ class TestMemory:
 
     @pytest.mark.skip()
     @parametrize
-    def test_method_delete_with_all_params(self, client: PaprPythonSDK) -> None:
+    def test_method_delete_with_all_params(self, client: Papr) -> None:
         memory = client.memory.delete(
             memory_id="memory_id",
             skip_parse=True,
@@ -248,7 +170,7 @@ class TestMemory:
 
     @pytest.mark.skip()
     @parametrize
-    def test_raw_response_delete(self, client: PaprPythonSDK) -> None:
+    def test_raw_response_delete(self, client: Papr) -> None:
         response = client.memory.with_raw_response.delete(
             memory_id="memory_id",
         )
@@ -260,7 +182,7 @@ class TestMemory:
 
     @pytest.mark.skip()
     @parametrize
-    def test_streaming_response_delete(self, client: PaprPythonSDK) -> None:
+    def test_streaming_response_delete(self, client: Papr) -> None:
         with client.memory.with_streaming_response.delete(
             memory_id="memory_id",
         ) as response:
@@ -274,7 +196,7 @@ class TestMemory:
 
     @pytest.mark.skip()
     @parametrize
-    def test_path_params_delete(self, client: PaprPythonSDK) -> None:
+    def test_path_params_delete(self, client: Papr) -> None:
         with pytest.raises(ValueError, match=r"Expected a non-empty value for `memory_id` but received ''"):
             client.memory.with_raw_response.delete(
                 memory_id="",
@@ -282,142 +204,16 @@ class TestMemory:
 
     @pytest.mark.skip()
     @parametrize
-    def test_method_create_batch(self, client: PaprPythonSDK) -> None:
-        memory = client.memory.create_batch(
-            memories=[
-                {"content": "Meeting notes from the product planning session"},
-                {"content": "Follow-up tasks from the planning meeting"},
-            ],
-        )
-        assert_matches_type(MemoryCreateBatchResponse, memory, path=["response"])
-
-    @pytest.mark.skip()
-    @parametrize
-    def test_method_create_batch_with_all_params(self, client: PaprPythonSDK) -> None:
-        memory = client.memory.create_batch(
-            memories=[
-                {
-                    "content": "Meeting notes from the product planning session",
-                    "context": [
-                        {
-                            "content": "content",
-                            "role": "user",
-                        }
-                    ],
-                    "metadata": {
-                        "conversation_id": "conversationId",
-                        "created_at": "2024-03-21T10:00:00Z",
-                        "emoji_tags": "📊,💡,📝",
-                        "emotion_tags": "focused, productive",
-                        "hierarchical_structures": "hierarchical_structures",
-                        "location": "location",
-                        "role_read_access": ["string"],
-                        "role_write_access": ["string"],
-                        "source_url": "sourceUrl",
-                        "topics": "product, planning",
-                        "user_read_access": ["string"],
-                        "user_write_access": ["string"],
-                        "workspace_read_access": ["string"],
-                        "workspace_write_access": ["string"],
-                    },
-                    "relationships_json": [
-                        {
-                            "related_item_id": "TextMemoryItem",
-                            "related_item_type": "TextMemoryItem",
-                            "relation_type": "relation_type",
-                            "metadata": {},
-                        }
-                    ],
-                    "type": "text",
-                },
-                {
-                    "content": "Follow-up tasks from the planning meeting",
-                    "context": [
-                        {
-                            "content": "content",
-                            "role": "user",
-                        }
-                    ],
-                    "metadata": {
-                        "conversation_id": "conversationId",
-                        "created_at": "2024-03-21T11:00:00Z",
-                        "emoji_tags": "✅,📋",
-                        "emotion_tags": "organized",
-                        "hierarchical_structures": "hierarchical_structures",
-                        "location": "location",
-                        "role_read_access": ["string"],
-                        "role_write_access": ["string"],
-                        "source_url": "sourceUrl",
-                        "topics": "tasks, planning",
-                        "user_read_access": ["string"],
-                        "user_write_access": ["string"],
-                        "workspace_read_access": ["string"],
-                        "workspace_write_access": ["string"],
-                    },
-                    "relationships_json": [
-                        {
-                            "related_item_id": "TextMemoryItem",
-                            "related_item_type": "TextMemoryItem",
-                            "relation_type": "relation_type",
-                            "metadata": {},
-                        }
-                    ],
-                    "type": "text",
-                },
-            ],
-            skip_background_processing=True,
-            batch_size=10,
-        )
-        assert_matches_type(MemoryCreateBatchResponse, memory, path=["response"])
-
-    @pytest.mark.skip()
-    @parametrize
-    def test_raw_response_create_batch(self, client: PaprPythonSDK) -> None:
-        response = client.memory.with_raw_response.create_batch(
-            memories=[
-                {"content": "Meeting notes from the product planning session"},
-                {"content": "Follow-up tasks from the planning meeting"},
-            ],
-        )
-
-        assert response.is_closed is True
-        assert response.http_request.headers.get("X-Stainless-Lang") == "python"
-        memory = response.parse()
-        assert_matches_type(MemoryCreateBatchResponse, memory, path=["response"])
-
-    @pytest.mark.skip()
-    @parametrize
-    def test_streaming_response_create_batch(self, client: PaprPythonSDK) -> None:
-        with client.memory.with_streaming_response.create_batch(
-            memories=[
-                {"content": "Meeting notes from the product planning session"},
-                {"content": "Follow-up tasks from the planning meeting"},
-            ],
-        ) as response:
-            assert not response.is_closed
-            assert response.http_request.headers.get("X-Stainless-Lang") == "python"
-
-            memory = response.parse()
-            assert_matches_type(MemoryCreateBatchResponse, memory, path=["response"])
-
-        assert cast(Any, response.is_closed) is True
-
-
-class TestAsyncMemory:
-    parametrize = pytest.mark.parametrize("async_client", [False, True], indirect=True, ids=["loose", "strict"])
-
-    @pytest.mark.skip()
-    @parametrize
-    async def test_method_create(self, async_client: AsyncPaprPythonSDK) -> None:
-        memory = await async_client.memory.create(
+    def test_method_add(self, client: Papr) -> None:
+        memory = client.memory.add(
             content="Meeting notes from the product planning session",
         )
         assert_matches_type(AddMemoryResponse, memory, path=["response"])
 
     @pytest.mark.skip()
     @parametrize
-    async def test_method_create_with_all_params(self, async_client: AsyncPaprPythonSDK) -> None:
-        memory = await async_client.memory.create(
+    def test_method_add_with_all_params(self, client: Papr) -> None:
+        memory = client.memory.add(
             content="Meeting notes from the product planning session",
             skip_background_processing=True,
             context=[
@@ -460,224 +256,45 @@ class TestAsyncMemory:
 
     @pytest.mark.skip()
     @parametrize
-    async def test_raw_response_create(self, async_client: AsyncPaprPythonSDK) -> None:
-        response = await async_client.memory.with_raw_response.create(
+    def test_raw_response_add(self, client: Papr) -> None:
+        response = client.memory.with_raw_response.add(
             content="Meeting notes from the product planning session",
         )
 
         assert response.is_closed is True
         assert response.http_request.headers.get("X-Stainless-Lang") == "python"
-        memory = await response.parse()
+        memory = response.parse()
         assert_matches_type(AddMemoryResponse, memory, path=["response"])
 
     @pytest.mark.skip()
     @parametrize
-    async def test_streaming_response_create(self, async_client: AsyncPaprPythonSDK) -> None:
-        async with async_client.memory.with_streaming_response.create(
+    def test_streaming_response_add(self, client: Papr) -> None:
+        with client.memory.with_streaming_response.add(
             content="Meeting notes from the product planning session",
         ) as response:
             assert not response.is_closed
             assert response.http_request.headers.get("X-Stainless-Lang") == "python"
 
-            memory = await response.parse()
+            memory = response.parse()
             assert_matches_type(AddMemoryResponse, memory, path=["response"])
 
         assert cast(Any, response.is_closed) is True
 
     @pytest.mark.skip()
     @parametrize
-    async def test_method_retrieve(self, async_client: AsyncPaprPythonSDK) -> None:
-        memory = await async_client.memory.retrieve(
-            "memory_id",
-        )
-        assert_matches_type(SearchResponse, memory, path=["response"])
-
-    @pytest.mark.skip()
-    @parametrize
-    async def test_raw_response_retrieve(self, async_client: AsyncPaprPythonSDK) -> None:
-        response = await async_client.memory.with_raw_response.retrieve(
-            "memory_id",
-        )
-
-        assert response.is_closed is True
-        assert response.http_request.headers.get("X-Stainless-Lang") == "python"
-        memory = await response.parse()
-        assert_matches_type(SearchResponse, memory, path=["response"])
-
-    @pytest.mark.skip()
-    @parametrize
-    async def test_streaming_response_retrieve(self, async_client: AsyncPaprPythonSDK) -> None:
-        async with async_client.memory.with_streaming_response.retrieve(
-            "memory_id",
-        ) as response:
-            assert not response.is_closed
-            assert response.http_request.headers.get("X-Stainless-Lang") == "python"
-
-            memory = await response.parse()
-            assert_matches_type(SearchResponse, memory, path=["response"])
-
-        assert cast(Any, response.is_closed) is True
-
-    @pytest.mark.skip()
-    @parametrize
-    async def test_path_params_retrieve(self, async_client: AsyncPaprPythonSDK) -> None:
-        with pytest.raises(ValueError, match=r"Expected a non-empty value for `memory_id` but received ''"):
-            await async_client.memory.with_raw_response.retrieve(
-                "",
-            )
-
-    @pytest.mark.skip()
-    @parametrize
-    async def test_method_update(self, async_client: AsyncPaprPythonSDK) -> None:
-        memory = await async_client.memory.update(
-            memory_id="memory_id",
-        )
-        assert_matches_type(MemoryUpdateResponse, memory, path=["response"])
-
-    @pytest.mark.skip()
-    @parametrize
-    async def test_method_update_with_all_params(self, async_client: AsyncPaprPythonSDK) -> None:
-        memory = await async_client.memory.update(
-            memory_id="memory_id",
-            content="Updated meeting notes from the product planning session",
-            context=[
-                {
-                    "content": "Let's update the Q2 product roadmap",
-                    "role": "user",
-                },
-                {
-                    "content": "I'll help you update the roadmap. What changes would you like to make?",
-                    "role": "assistant",
-                },
-            ],
-            metadata={
-                "conversation_id": "conversationId",
-                "created_at": "createdAt",
-                "emoji_tags": "📊,💡,📝,✨",
-                "emotion_tags": "focused, productive, satisfied",
-                "hierarchical_structures": "hierarchical_structures",
-                "location": "location",
-                "role_read_access": ["string"],
-                "role_write_access": ["string"],
-                "source_url": "sourceUrl",
-                "topics": "product, planning, updates",
-                "user_read_access": ["string"],
-                "user_write_access": ["string"],
-                "workspace_read_access": ["string"],
-                "workspace_write_access": ["string"],
-            },
-            relationships_json=[
-                {
-                    "related_item_id": "previous_memory_item_id",
-                    "related_item_type": "TextMemoryItem",
-                    "relation_type": "updates",
-                    "metadata": {"relevance": "high"},
-                }
-            ],
-            type="text",
-        )
-        assert_matches_type(MemoryUpdateResponse, memory, path=["response"])
-
-    @pytest.mark.skip()
-    @parametrize
-    async def test_raw_response_update(self, async_client: AsyncPaprPythonSDK) -> None:
-        response = await async_client.memory.with_raw_response.update(
-            memory_id="memory_id",
-        )
-
-        assert response.is_closed is True
-        assert response.http_request.headers.get("X-Stainless-Lang") == "python"
-        memory = await response.parse()
-        assert_matches_type(MemoryUpdateResponse, memory, path=["response"])
-
-    @pytest.mark.skip()
-    @parametrize
-    async def test_streaming_response_update(self, async_client: AsyncPaprPythonSDK) -> None:
-        async with async_client.memory.with_streaming_response.update(
-            memory_id="memory_id",
-        ) as response:
-            assert not response.is_closed
-            assert response.http_request.headers.get("X-Stainless-Lang") == "python"
-
-            memory = await response.parse()
-            assert_matches_type(MemoryUpdateResponse, memory, path=["response"])
-
-        assert cast(Any, response.is_closed) is True
-
-    @pytest.mark.skip()
-    @parametrize
-    async def test_path_params_update(self, async_client: AsyncPaprPythonSDK) -> None:
-        with pytest.raises(ValueError, match=r"Expected a non-empty value for `memory_id` but received ''"):
-            await async_client.memory.with_raw_response.update(
-                memory_id="",
-            )
-
-    @pytest.mark.skip()
-    @parametrize
-    async def test_method_delete(self, async_client: AsyncPaprPythonSDK) -> None:
-        memory = await async_client.memory.delete(
-            memory_id="memory_id",
-        )
-        assert_matches_type(MemoryDeleteResponse, memory, path=["response"])
-
-    @pytest.mark.skip()
-    @parametrize
-    async def test_method_delete_with_all_params(self, async_client: AsyncPaprPythonSDK) -> None:
-        memory = await async_client.memory.delete(
-            memory_id="memory_id",
-            skip_parse=True,
-        )
-        assert_matches_type(MemoryDeleteResponse, memory, path=["response"])
-
-    @pytest.mark.skip()
-    @parametrize
-    async def test_raw_response_delete(self, async_client: AsyncPaprPythonSDK) -> None:
-        response = await async_client.memory.with_raw_response.delete(
-            memory_id="memory_id",
-        )
-
-        assert response.is_closed is True
-        assert response.http_request.headers.get("X-Stainless-Lang") == "python"
-        memory = await response.parse()
-        assert_matches_type(MemoryDeleteResponse, memory, path=["response"])
-
-    @pytest.mark.skip()
-    @parametrize
-    async def test_streaming_response_delete(self, async_client: AsyncPaprPythonSDK) -> None:
-        async with async_client.memory.with_streaming_response.delete(
-            memory_id="memory_id",
-        ) as response:
-            assert not response.is_closed
-            assert response.http_request.headers.get("X-Stainless-Lang") == "python"
-
-            memory = await response.parse()
-            assert_matches_type(MemoryDeleteResponse, memory, path=["response"])
-
-        assert cast(Any, response.is_closed) is True
-
-    @pytest.mark.skip()
-    @parametrize
-    async def test_path_params_delete(self, async_client: AsyncPaprPythonSDK) -> None:
-        with pytest.raises(ValueError, match=r"Expected a non-empty value for `memory_id` but received ''"):
-            await async_client.memory.with_raw_response.delete(
-                memory_id="",
-            )
-
-    @pytest.mark.skip()
-    @parametrize
-    async def test_method_create_batch(self, async_client: AsyncPaprPythonSDK) -> None:
-        memory = await async_client.memory.create_batch(
+    def test_method_add_batch(self, client: Papr) -> None:
+        memory = client.memory.add_batch(
             memories=[
                 {"content": "Meeting notes from the product planning session"},
                 {"content": "Follow-up tasks from the planning meeting"},
             ],
         )
-        assert_matches_type(MemoryCreateBatchResponse, memory, path=["response"])
+        assert_matches_type(MemoryAddBatchResponse, memory, path=["response"])
 
     @pytest.mark.skip()
     @parametrize
-    async def test_method_create_batch_with_all_params(self, async_client: AsyncPaprPythonSDK) -> None:
-        memory = await async_client.memory.create_batch(
+    def test_method_add_batch_with_all_params(self, client: Papr) -> None:
+        memory = client.memory.add_batch(
             memories=[
                 {
                     "content": "Meeting notes from the product planning session",
@@ -751,12 +368,395 @@ class TestAsyncMemory:
             skip_background_processing=True,
             batch_size=10,
         )
-        assert_matches_type(MemoryCreateBatchResponse, memory, path=["response"])
+        assert_matches_type(MemoryAddBatchResponse, memory, path=["response"])
 
     @pytest.mark.skip()
     @parametrize
-    async def test_raw_response_create_batch(self, async_client: AsyncPaprPythonSDK) -> None:
-        response = await async_client.memory.with_raw_response.create_batch(
+    def test_raw_response_add_batch(self, client: Papr) -> None:
+        response = client.memory.with_raw_response.add_batch(
+            memories=[
+                {"content": "Meeting notes from the product planning session"},
+                {"content": "Follow-up tasks from the planning meeting"},
+            ],
+        )
+
+        assert response.is_closed is True
+        assert response.http_request.headers.get("X-Stainless-Lang") == "python"
+        memory = response.parse()
+        assert_matches_type(MemoryAddBatchResponse, memory, path=["response"])
+
+    @pytest.mark.skip()
+    @parametrize
+    def test_streaming_response_add_batch(self, client: Papr) -> None:
+        with client.memory.with_streaming_response.add_batch(
+            memories=[
+                {"content": "Meeting notes from the product planning session"},
+                {"content": "Follow-up tasks from the planning meeting"},
+            ],
+        ) as response:
+            assert not response.is_closed
+            assert response.http_request.headers.get("X-Stainless-Lang") == "python"
+
+            memory = response.parse()
+            assert_matches_type(MemoryAddBatchResponse, memory, path=["response"])
+
+        assert cast(Any, response.is_closed) is True
+
+
+class TestAsyncMemory:
+    parametrize = pytest.mark.parametrize("async_client", [False, True], indirect=True, ids=["loose", "strict"])
+
+    @pytest.mark.skip()
+    @parametrize
+    async def test_method_retrieve(self, async_client: AsyncPapr) -> None:
+        memory = await async_client.memory.retrieve(
+            "memory_id",
+        )
+        assert_matches_type(SearchResponse, memory, path=["response"])
+
+    @pytest.mark.skip()
+    @parametrize
+    async def test_raw_response_retrieve(self, async_client: AsyncPapr) -> None:
+        response = await async_client.memory.with_raw_response.retrieve(
+            "memory_id",
+        )
+
+        assert response.is_closed is True
+        assert response.http_request.headers.get("X-Stainless-Lang") == "python"
+        memory = await response.parse()
+        assert_matches_type(SearchResponse, memory, path=["response"])
+
+    @pytest.mark.skip()
+    @parametrize
+    async def test_streaming_response_retrieve(self, async_client: AsyncPapr) -> None:
+        async with async_client.memory.with_streaming_response.retrieve(
+            "memory_id",
+        ) as response:
+            assert not response.is_closed
+            assert response.http_request.headers.get("X-Stainless-Lang") == "python"
+
+            memory = await response.parse()
+            assert_matches_type(SearchResponse, memory, path=["response"])
+
+        assert cast(Any, response.is_closed) is True
+
+    @pytest.mark.skip()
+    @parametrize
+    async def test_path_params_retrieve(self, async_client: AsyncPapr) -> None:
+        with pytest.raises(ValueError, match=r"Expected a non-empty value for `memory_id` but received ''"):
+            await async_client.memory.with_raw_response.retrieve(
+                "",
+            )
+
+    @pytest.mark.skip()
+    @parametrize
+    async def test_method_update(self, async_client: AsyncPapr) -> None:
+        memory = await async_client.memory.update(
+            memory_id="memory_id",
+        )
+        assert_matches_type(MemoryUpdateResponse, memory, path=["response"])
+
+    @pytest.mark.skip()
+    @parametrize
+    async def test_method_update_with_all_params(self, async_client: AsyncPapr) -> None:
+        memory = await async_client.memory.update(
+            memory_id="memory_id",
+            content="Updated meeting notes from the product planning session",
+            context=[
+                {
+                    "content": "Let's update the Q2 product roadmap",
+                    "role": "user",
+                },
+                {
+                    "content": "I'll help you update the roadmap. What changes would you like to make?",
+                    "role": "assistant",
+                },
+            ],
+            metadata={
+                "conversation_id": "conversationId",
+                "created_at": "createdAt",
+                "emoji_tags": "📊,💡,📝,✨",
+                "emotion_tags": "focused, productive, satisfied",
+                "hierarchical_structures": "hierarchical_structures",
+                "location": "location",
+                "role_read_access": ["string"],
+                "role_write_access": ["string"],
+                "source_url": "sourceUrl",
+                "topics": "product, planning, updates",
+                "user_read_access": ["string"],
+                "user_write_access": ["string"],
+                "workspace_read_access": ["string"],
+                "workspace_write_access": ["string"],
+            },
+            relationships_json=[
+                {
+                    "related_item_id": "previous_memory_item_id",
+                    "related_item_type": "TextMemoryItem",
+                    "relation_type": "updates",
+                    "metadata": {"relevance": "high"},
+                }
+            ],
+            type="text",
+        )
+        assert_matches_type(MemoryUpdateResponse, memory, path=["response"])
+
+    @pytest.mark.skip()
+    @parametrize
+    async def test_raw_response_update(self, async_client: AsyncPapr) -> None:
+        response = await async_client.memory.with_raw_response.update(
+            memory_id="memory_id",
+        )
+
+        assert response.is_closed is True
+        assert response.http_request.headers.get("X-Stainless-Lang") == "python"
+        memory = await response.parse()
+        assert_matches_type(MemoryUpdateResponse, memory, path=["response"])
+
+    @pytest.mark.skip()
+    @parametrize
+    async def test_streaming_response_update(self, async_client: AsyncPapr) -> None:
+        async with async_client.memory.with_streaming_response.update(
+            memory_id="memory_id",
+        ) as response:
+            assert not response.is_closed
+            assert response.http_request.headers.get("X-Stainless-Lang") == "python"
+
+            memory = await response.parse()
+            assert_matches_type(MemoryUpdateResponse, memory, path=["response"])
+
+        assert cast(Any, response.is_closed) is True
+
+    @pytest.mark.skip()
+    @parametrize
+    async def test_path_params_update(self, async_client: AsyncPapr) -> None:
+        with pytest.raises(ValueError, match=r"Expected a non-empty value for `memory_id` but received ''"):
+            await async_client.memory.with_raw_response.update(
+                memory_id="",
+            )
+
+    @pytest.mark.skip()
+    @parametrize
+    async def test_method_delete(self, async_client: AsyncPapr) -> None:
+        memory = await async_client.memory.delete(
+            memory_id="memory_id",
+        )
+        assert_matches_type(MemoryDeleteResponse, memory, path=["response"])
+
+    @pytest.mark.skip()
+    @parametrize
+    async def test_method_delete_with_all_params(self, async_client: AsyncPapr) -> None:
+        memory = await async_client.memory.delete(
+            memory_id="memory_id",
+            skip_parse=True,
+        )
+        assert_matches_type(MemoryDeleteResponse, memory, path=["response"])
+
+    @pytest.mark.skip()
+    @parametrize
+    async def test_raw_response_delete(self, async_client: AsyncPapr) -> None:
+        response = await async_client.memory.with_raw_response.delete(
+            memory_id="memory_id",
+        )
+
+        assert response.is_closed is True
+        assert response.http_request.headers.get("X-Stainless-Lang") == "python"
+        memory = await response.parse()
+        assert_matches_type(MemoryDeleteResponse, memory, path=["response"])
+
+    @pytest.mark.skip()
+    @parametrize
+    async def test_streaming_response_delete(self, async_client: AsyncPapr) -> None:
+        async with async_client.memory.with_streaming_response.delete(
+            memory_id="memory_id",
+        ) as response:
+            assert not response.is_closed
+            assert response.http_request.headers.get("X-Stainless-Lang") == "python"
+
+            memory = await response.parse()
+            assert_matches_type(MemoryDeleteResponse, memory, path=["response"])
+
+        assert cast(Any, response.is_closed) is True
+
+    @pytest.mark.skip()
+    @parametrize
+    async def test_path_params_delete(self, async_client: AsyncPapr) -> None:
+        with pytest.raises(ValueError, match=r"Expected a non-empty value for `memory_id` but received ''"):
+            await async_client.memory.with_raw_response.delete(
+                memory_id="",
+            )
+
+    @pytest.mark.skip()
+    @parametrize
+    async def test_method_add(self, async_client: AsyncPapr) -> None:
+        memory = await async_client.memory.add(
+            content="Meeting notes from the product planning session",
+        )
+        assert_matches_type(AddMemoryResponse, memory, path=["response"])
+
+    @pytest.mark.skip()
+    @parametrize
+    async def test_method_add_with_all_params(self, async_client: AsyncPapr) -> None:
+        memory = await async_client.memory.add(
+            content="Meeting notes from the product planning session",
+            skip_background_processing=True,
+            context=[
+                {
+                    "content": "Let's discuss the Q2 product roadmap",
+                    "role": "user",
+                },
+                {
+                    "content": "I'll help you plan the roadmap. What are your key objectives?",
+                    "role": "assistant",
+                },
+            ],
+            metadata={
+                "conversation_id": "conv-123",
+                "created_at": "2024-03-21T10:00:00Z",
+                "emoji_tags": "📊,💡,📝",
+                "emotion_tags": "focused, productive",
+                "hierarchical_structures": "hierarchical_structures",
+                "location": "Conference Room A",
+                "role_read_access": ["string"],
+                "role_write_access": ["string"],
+                "source_url": "https://meeting-notes.example.com/123",
+                "topics": "product, planning",
+                "user_read_access": ["string"],
+                "user_write_access": ["string"],
+                "workspace_read_access": ["string"],
+                "workspace_write_access": ["string"],
+            },
+            relationships_json=[
+                {
+                    "related_item_id": "previous_memory_item_id",
+                    "related_item_type": "TextMemoryItem",
+                    "relation_type": "follows",
+                    "metadata": {"relevance": "high"},
+                }
+            ],
+            type="text",
+        )
+        assert_matches_type(AddMemoryResponse, memory, path=["response"])
+
+    @pytest.mark.skip()
+    @parametrize
+    async def test_raw_response_add(self, async_client: AsyncPapr) -> None:
+        response = await async_client.memory.with_raw_response.add(
+            content="Meeting notes from the product planning session",
+        )
+
+        assert response.is_closed is True
+        assert response.http_request.headers.get("X-Stainless-Lang") == "python"
+        memory = await response.parse()
+        assert_matches_type(AddMemoryResponse, memory, path=["response"])
+
+    @pytest.mark.skip()
+    @parametrize
+    async def test_streaming_response_add(self, async_client: AsyncPapr) -> None:
+        async with async_client.memory.with_streaming_response.add(
+            content="Meeting notes from the product planning session",
+        ) as response:
+            assert not response.is_closed
+            assert response.http_request.headers.get("X-Stainless-Lang") == "python"
+
+            memory = await response.parse()
+            assert_matches_type(AddMemoryResponse, memory, path=["response"])
+
+        assert cast(Any, response.is_closed) is True
+
+    @pytest.mark.skip()
+    @parametrize
+    async def test_method_add_batch(self, async_client: AsyncPapr) -> None:
+        memory = await async_client.memory.add_batch(
+            memories=[
+                {"content": "Meeting notes from the product planning session"},
+                {"content": "Follow-up tasks from the planning meeting"},
+            ],
+        )
+        assert_matches_type(MemoryAddBatchResponse, memory, path=["response"])
+
+    @pytest.mark.skip()
+    @parametrize
+    async def test_method_add_batch_with_all_params(self, async_client: AsyncPapr) -> None:
+        memory = await async_client.memory.add_batch(
+            memories=[
+                {
+                    "content": "Meeting notes from the product planning session",
+                    "context": [
+                        {
+                            "content": "content",
+                            "role": "user",
+                        }
+                    ],
+                    "metadata": {
+                        "conversation_id": "conversationId",
+                        "created_at": "2024-03-21T10:00:00Z",
+                        "emoji_tags": "📊,💡,📝",
+                        "emotion_tags": "focused, productive",
+                        "hierarchical_structures": "hierarchical_structures",
+                        "location": "location",
+                        "role_read_access": ["string"],
+                        "role_write_access": ["string"],
+                        "source_url": "sourceUrl",
+                        "topics": "product, planning",
+                        "user_read_access": ["string"],
+                        "user_write_access": ["string"],
+                        "workspace_read_access": ["string"],
+                        "workspace_write_access": ["string"],
+                    },
+                    "relationships_json": [
+                        {
+                            "related_item_id": "TextMemoryItem",
+                            "related_item_type": "TextMemoryItem",
+                            "relation_type": "relation_type",
+                            "metadata": {},
+                        }
+                    ],
+                    "type": "text",
+                },
+                {
+                    "content": "Follow-up tasks from the planning meeting",
+                    "context": [
+                        {
+                            "content": "content",
+                            "role": "user",
+                        }
+                    ],
+                    "metadata": {
+                        "conversation_id": "conversationId",
+                        "created_at": "2024-03-21T11:00:00Z",
+                        "emoji_tags": "✅,📋",
+                        "emotion_tags": "organized",
+                        "hierarchical_structures": "hierarchical_structures",
+                        "location": "location",
+                        "role_read_access": ["string"],
+                        "role_write_access": ["string"],
+                        "source_url": "sourceUrl",
+                        "topics": "tasks, planning",
+                        "user_read_access": ["string"],
+                        "user_write_access": ["string"],
+                        "workspace_read_access": ["string"],
+                        "workspace_write_access": ["string"],
+                    },
+                    "relationships_json": [
+                        {
+                            "related_item_id": "TextMemoryItem",
+                            "related_item_type": "TextMemoryItem",
+                            "relation_type": "relation_type",
+                            "metadata": {},
+                        }
+                    ],
+                    "type": "text",
+                },
+            ],
+            skip_background_processing=True,
+            batch_size=10,
+        )
+        assert_matches_type(MemoryAddBatchResponse, memory, path=["response"])
+
+    @pytest.mark.skip()
+    @parametrize
+    async def test_raw_response_add_batch(self, async_client: AsyncPapr) -> None:
+        response = await async_client.memory.with_raw_response.add_batch(
             memories=[
                 {"content": "Meeting notes from the product planning session"},
                 {"content": "Follow-up tasks from the planning meeting"},
@@ -766,12 +766,12 @@ class TestAsyncMemory:
         assert response.is_closed is True
         assert response.http_request.headers.get("X-Stainless-Lang") == "python"
         memory = await response.parse()
-        assert_matches_type(MemoryCreateBatchResponse, memory, path=["response"])
+        assert_matches_type(MemoryAddBatchResponse, memory, path=["response"])
 
     @pytest.mark.skip()
     @parametrize
-    async def test_streaming_response_create_batch(self, async_client: AsyncPaprPythonSDK) -> None:
-        async with async_client.memory.with_streaming_response.create_batch(
+    async def test_streaming_response_add_batch(self, async_client: AsyncPapr) -> None:
+        async with async_client.memory.with_streaming_response.add_batch(
             memories=[
                 {"content": "Meeting notes from the product planning session"},
                 {"content": "Follow-up tasks from the planning meeting"},
@@ -781,6 +781,6 @@ class TestAsyncMemory:
             assert response.http_request.headers.get("X-Stainless-Lang") == "python"
 
             memory = await response.parse()
-            assert_matches_type(MemoryCreateBatchResponse, memory, path=["response"])
+            assert_matches_type(MemoryAddBatchResponse, memory, path=["response"])
 
         assert cast(Any, response.is_closed) is True

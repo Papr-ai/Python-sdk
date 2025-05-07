@@ -1,8 +1,8 @@
-# Papr Python SDK Python API library
+# Papr Python API library
 
 [![PyPI version](https://img.shields.io/pypi/v/papr_python_sdk.svg)](https://pypi.org/project/papr_python_sdk/)
 
-The Papr Python SDK Python library provides convenient access to the Papr Python SDK REST API from any Python 3.8+
+The Papr Python library provides convenient access to the Papr REST API from any Python 3.8+
 application. The library includes type definitions for all request params and response fields,
 and offers both synchronous and asynchronous clients powered by [httpx](https://github.com/encode/httpx).
 
@@ -28,9 +28,9 @@ The full API of this library can be found in [api.md](api.md).
 
 ```python
 import os
-from papr_python_sdk import PaprPythonSDK
+from papr_python_sdk import Papr
 
-client = PaprPythonSDK(
+client = Papr(
     api_key=os.environ.get("PAPR_PYTHON_SDK_API_KEY"),  # This is the default and can be omitted
     bearer_token=os.environ.get(
         "PAPR_PYTHON_SDK_BEARER_TOKEN"
@@ -50,14 +50,14 @@ so that your API Key is not stored in source control.
 
 ## Async usage
 
-Simply import `AsyncPaprPythonSDK` instead of `PaprPythonSDK` and use `await` with each API call:
+Simply import `AsyncPapr` instead of `Papr` and use `await` with each API call:
 
 ```python
 import os
 import asyncio
-from papr_python_sdk import AsyncPaprPythonSDK
+from papr_python_sdk import AsyncPapr
 
-client = AsyncPaprPythonSDK(
+client = AsyncPapr(
     api_key=os.environ.get("PAPR_PYTHON_SDK_API_KEY"),  # This is the default and can be omitted
     bearer_token=os.environ.get(
         "PAPR_PYTHON_SDK_BEARER_TOKEN"
@@ -91,30 +91,30 @@ Typed requests and responses provide autocomplete and documentation within your 
 Nested parameters are dictionaries, typed using `TypedDict`, for example:
 
 ```python
-from papr_python_sdk import PaprPythonSDK
+from papr_python_sdk import Papr
 
-client = PaprPythonSDK()
+client = Papr()
 
-add_memory_response = client.memory.create(
-    content="Meeting notes from the product planning session",
+memory = client.memory.update(
+    memory_id="memory_id",
     metadata={
-        "conversation_id": "conv-123",
-        "created_at": "2024-03-21T10:00:00Z",
-        "emoji_tags": "📊,💡,📝",
-        "emotion_tags": "focused, productive",
+        "conversation_id": "conversationId",
+        "created_at": "createdAt",
+        "emoji_tags": "📊,💡,📝,✨",
+        "emotion_tags": "focused, productive, satisfied",
         "hierarchical_structures": "hierarchical_structures",
-        "location": "Conference Room A",
+        "location": "location",
         "role_read_access": ["string"],
         "role_write_access": ["string"],
-        "source_url": "https://meeting-notes.example.com/123",
-        "topics": "product, planning",
+        "source_url": "sourceUrl",
+        "topics": "product, planning, updates",
         "user_read_access": ["string"],
         "user_write_access": ["string"],
         "workspace_read_access": ["string"],
         "workspace_write_access": ["string"],
     },
 )
-print(add_memory_response.metadata)
+print(memory.metadata)
 ```
 
 ## Handling errors
@@ -128,9 +128,9 @@ All errors inherit from `papr_python_sdk.APIError`.
 
 ```python
 import papr_python_sdk
-from papr_python_sdk import PaprPythonSDK
+from papr_python_sdk import Papr
 
-client = PaprPythonSDK()
+client = Papr()
 
 try:
     client.user.create(
@@ -169,10 +169,10 @@ Connection errors (for example, due to a network connectivity problem), 408 Requ
 You can use the `max_retries` option to configure or disable retry settings:
 
 ```python
-from papr_python_sdk import PaprPythonSDK
+from papr_python_sdk import Papr
 
 # Configure the default for all requests:
-client = PaprPythonSDK(
+client = Papr(
     # default is 2
     max_retries=0,
 )
@@ -189,16 +189,16 @@ By default requests time out after 1 minute. You can configure this with a `time
 which accepts a float or an [`httpx.Timeout`](https://www.python-httpx.org/advanced/#fine-tuning-the-configuration) object:
 
 ```python
-from papr_python_sdk import PaprPythonSDK
+from papr_python_sdk import Papr
 
 # Configure the default for all requests:
-client = PaprPythonSDK(
+client = Papr(
     # 20 seconds (default is 1 minute)
     timeout=20.0,
 )
 
 # More granular control:
-client = PaprPythonSDK(
+client = Papr(
     timeout=httpx.Timeout(60.0, read=5.0, write=10.0, connect=2.0),
 )
 
@@ -218,10 +218,10 @@ Note that requests that time out are [retried twice by default](#retries).
 
 We use the standard library [`logging`](https://docs.python.org/3/library/logging.html) module.
 
-You can enable logging by setting the environment variable `PAPR_PYTHON_SDK_LOG` to `info`.
+You can enable logging by setting the environment variable `PAPR_LOG` to `info`.
 
 ```shell
-$ export PAPR_PYTHON_SDK_LOG=info
+$ export PAPR_LOG=info
 ```
 
 Or to `debug` for more verbose logging.
@@ -243,9 +243,9 @@ if response.my_field is None:
 The "raw" Response object can be accessed by prefixing `.with_raw_response.` to any HTTP method call, e.g.,
 
 ```py
-from papr_python_sdk import PaprPythonSDK
+from papr_python_sdk import Papr
 
-client = PaprPythonSDK()
+client = Papr()
 response = client.user.with_raw_response.create(
     external_id="user123",
 )
@@ -321,10 +321,10 @@ You can directly override the [httpx client](https://www.python-httpx.org/api/#c
 
 ```python
 import httpx
-from papr_python_sdk import PaprPythonSDK, DefaultHttpxClient
+from papr_python_sdk import Papr, DefaultHttpxClient
 
-client = PaprPythonSDK(
-    # Or use the `PAPR_PYTHON_SDK_BASE_URL` env var
+client = Papr(
+    # Or use the `PAPR_BASE_URL` env var
     base_url="http://my.test.server.example.com:8083",
     http_client=DefaultHttpxClient(
         proxy="http://my.test.proxy.example.com",
@@ -344,9 +344,9 @@ client.with_options(http_client=DefaultHttpxClient(...))
 By default the library closes underlying HTTP connections whenever the client is [garbage collected](https://docs.python.org/3/reference/datamodel.html#object.__del__). You can manually close the client using the `.close()` method if desired, or with a context manager that closes when exiting.
 
 ```py
-from papr_python_sdk import PaprPythonSDK
+from papr_python_sdk import Papr
 
-with PaprPythonSDK() as client:
+with Papr() as client:
   # make requests here
   ...
 
