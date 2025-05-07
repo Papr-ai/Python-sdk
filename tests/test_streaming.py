@@ -5,8 +5,8 @@ from typing import Iterator, AsyncIterator
 import httpx
 import pytest
 
-from papr_python_sdk import Papr, AsyncPapr
-from papr_python_sdk._streaming import Stream, AsyncStream, ServerSentEvent
+from memory import Papr, AsyncPapr
+from memory._streaming import Stream, AsyncStream, ServerSentEvent
 
 
 @pytest.mark.asyncio

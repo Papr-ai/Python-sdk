@@ -7,9 +7,9 @@ from typing import Any, cast
 
 import pytest
 
+from memory import Papr, AsyncPapr
 from tests.utils import assert_matches_type
-from papr_python_sdk import Papr, AsyncPapr
-from papr_python_sdk.types import (
+from memory.types import (
     SearchResponse,
     AddMemoryResponse,
     MemoryDeleteResponse,
@@ -22,48 +22,6 @@ base_url = os.environ.get("TEST_API_BASE_URL", "http://127.0.0.1:4010")
 
 class TestMemory:
     parametrize = pytest.mark.parametrize("client", [False, True], indirect=True, ids=["loose", "strict"])
-
-    @pytest.mark.skip()
-    @parametrize
-    def test_method_retrieve(self, client: Papr) -> None:
-        memory = client.memory.retrieve(
-            "memory_id",
-        )
-        assert_matches_type(SearchResponse, memory, path=["response"])
-
-    @pytest.mark.skip()
-    @parametrize
-    def test_raw_response_retrieve(self, client: Papr) -> None:
-        response = client.memory.with_raw_response.retrieve(
-            "memory_id",
-        )
-
-        assert response.is_closed is True
-        assert response.http_request.headers.get("X-Stainless-Lang") == "python"
-        memory = response.parse()
-        assert_matches_type(SearchResponse, memory, path=["response"])
-
-    @pytest.mark.skip()
-    @parametrize
-    def test_streaming_response_retrieve(self, client: Papr) -> None:
-        with client.memory.with_streaming_response.retrieve(
-            "memory_id",
-        ) as response:
-            assert not response.is_closed
-            assert response.http_request.headers.get("X-Stainless-Lang") == "python"
-
-            memory = response.parse()
-            assert_matches_type(SearchResponse, memory, path=["response"])
-
-        assert cast(Any, response.is_closed) is True
-
-    @pytest.mark.skip()
-    @parametrize
-    def test_path_params_retrieve(self, client: Papr) -> None:
-        with pytest.raises(ValueError, match=r"Expected a non-empty value for `memory_id` but received ''"):
-            client.memory.with_raw_response.retrieve(
-                "",
-            )
 
     @pytest.mark.skip()
     @parametrize
@@ -402,51 +360,51 @@ class TestMemory:
 
         assert cast(Any, response.is_closed) is True
 
-
-class TestAsyncMemory:
-    parametrize = pytest.mark.parametrize("async_client", [False, True], indirect=True, ids=["loose", "strict"])
-
     @pytest.mark.skip()
     @parametrize
-    async def test_method_retrieve(self, async_client: AsyncPapr) -> None:
-        memory = await async_client.memory.retrieve(
+    def test_method_get(self, client: Papr) -> None:
+        memory = client.memory.get(
             "memory_id",
         )
         assert_matches_type(SearchResponse, memory, path=["response"])
 
     @pytest.mark.skip()
     @parametrize
-    async def test_raw_response_retrieve(self, async_client: AsyncPapr) -> None:
-        response = await async_client.memory.with_raw_response.retrieve(
+    def test_raw_response_get(self, client: Papr) -> None:
+        response = client.memory.with_raw_response.get(
             "memory_id",
         )
 
         assert response.is_closed is True
         assert response.http_request.headers.get("X-Stainless-Lang") == "python"
-        memory = await response.parse()
+        memory = response.parse()
         assert_matches_type(SearchResponse, memory, path=["response"])
 
     @pytest.mark.skip()
     @parametrize
-    async def test_streaming_response_retrieve(self, async_client: AsyncPapr) -> None:
-        async with async_client.memory.with_streaming_response.retrieve(
+    def test_streaming_response_get(self, client: Papr) -> None:
+        with client.memory.with_streaming_response.get(
             "memory_id",
         ) as response:
             assert not response.is_closed
             assert response.http_request.headers.get("X-Stainless-Lang") == "python"
 
-            memory = await response.parse()
+            memory = response.parse()
             assert_matches_type(SearchResponse, memory, path=["response"])
 
         assert cast(Any, response.is_closed) is True
 
     @pytest.mark.skip()
     @parametrize
-    async def test_path_params_retrieve(self, async_client: AsyncPapr) -> None:
+    def test_path_params_get(self, client: Papr) -> None:
         with pytest.raises(ValueError, match=r"Expected a non-empty value for `memory_id` but received ''"):
-            await async_client.memory.with_raw_response.retrieve(
+            client.memory.with_raw_response.get(
                 "",
             )
+
+
+class TestAsyncMemory:
+    parametrize = pytest.mark.parametrize("async_client", [False, True], indirect=True, ids=["loose", "strict"])
 
     @pytest.mark.skip()
     @parametrize
@@ -784,3 +742,45 @@ class TestAsyncMemory:
             assert_matches_type(MemoryAddBatchResponse, memory, path=["response"])
 
         assert cast(Any, response.is_closed) is True
+
+    @pytest.mark.skip()
+    @parametrize
+    async def test_method_get(self, async_client: AsyncPapr) -> None:
+        memory = await async_client.memory.get(
+            "memory_id",
+        )
+        assert_matches_type(SearchResponse, memory, path=["response"])
+
+    @pytest.mark.skip()
+    @parametrize
+    async def test_raw_response_get(self, async_client: AsyncPapr) -> None:
+        response = await async_client.memory.with_raw_response.get(
+            "memory_id",
+        )
+
+        assert response.is_closed is True
+        assert response.http_request.headers.get("X-Stainless-Lang") == "python"
+        memory = await response.parse()
+        assert_matches_type(SearchResponse, memory, path=["response"])
+
+    @pytest.mark.skip()
+    @parametrize
+    async def test_streaming_response_get(self, async_client: AsyncPapr) -> None:
+        async with async_client.memory.with_streaming_response.get(
+            "memory_id",
+        ) as response:
+            assert not response.is_closed
+            assert response.http_request.headers.get("X-Stainless-Lang") == "python"
+
+            memory = await response.parse()
+            assert_matches_type(SearchResponse, memory, path=["response"])
+
+        assert cast(Any, response.is_closed) is True
+
+    @pytest.mark.skip()
+    @parametrize
+    async def test_path_params_get(self, async_client: AsyncPapr) -> None:
+        with pytest.raises(ValueError, match=r"Expected a non-empty value for `memory_id` but received ''"):
+            await async_client.memory.with_raw_response.get(
+                "",
+            )

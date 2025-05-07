@@ -4,8 +4,8 @@ from typing import Sequence
 
 import pytest
 
-from papr_python_sdk._types import FileTypes
-from papr_python_sdk._utils import extract_files
+from memory._types import FileTypes
+from memory._utils import extract_files
 
 
 def test_removes_files_from_input() -> None:
