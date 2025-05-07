@@ -58,48 +58,6 @@ class MemoryResource(SyncAPIResource):
         """
         return MemoryResourceWithStreamingResponse(self)
 
-    def retrieve(
-        self,
-        memory_id: str,
-        *,
-        # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
-        # The extra values given here take precedence over values defined on the client or passed to this method.
-        extra_headers: Headers | None = None,
-        extra_query: Query | None = None,
-        extra_body: Body | None = None,
-        timeout: float | httpx.Timeout | None | NotGiven = NOT_GIVEN,
-    ) -> SearchResponse:
-        """
-        Retrieve a memory item by ID.
-
-            **Authentication Required**:
-            One of the following authentication methods must be used:
-            - Bearer token in `Authorization` header
-            - API Key in `X-API-Key` header
-            - Session token in `X-Session-Token` header
-
-            **Required Headers**:
-            - X-Client-Type: (e.g., 'papr_plugin', 'browser_extension')
-
-        Args:
-          extra_headers: Send extra headers
-
-          extra_query: Add additional query parameters to the request
-
-          extra_body: Add additional JSON properties to the request
-
-          timeout: Override the client-level default timeout for this request, in seconds
-        """
-        if not memory_id:
-            raise ValueError(f"Expected a non-empty value for `memory_id` but received {memory_id!r}")
-        return self._get(
-            f"/v1/memory/{memory_id}",
-            options=make_request_options(
-                extra_headers=extra_headers, extra_query=extra_query, extra_body=extra_body, timeout=timeout
-            ),
-            cast_to=SearchResponse,
-        )
-
     def update(
         self,
         memory_id: str,
@@ -362,28 +320,7 @@ class MemoryResource(SyncAPIResource):
             cast_to=MemoryAddBatchResponse,
         )
 
-
-class AsyncMemoryResource(AsyncAPIResource):
-    @cached_property
-    def with_raw_response(self) -> AsyncMemoryResourceWithRawResponse:
-        """
-        This property can be used as a prefix for any HTTP method call to return
-        the raw response object instead of the parsed content.
-
-        For more information, see https://www.github.com/stainless-sdks/papr-python-sdk-python#accessing-raw-response-data-eg-headers
-        """
-        return AsyncMemoryResourceWithRawResponse(self)
-
-    @cached_property
-    def with_streaming_response(self) -> AsyncMemoryResourceWithStreamingResponse:
-        """
-        An alternative to `.with_raw_response` that doesn't eagerly read the response body.
-
-        For more information, see https://www.github.com/stainless-sdks/papr-python-sdk-python#with_streaming_response
-        """
-        return AsyncMemoryResourceWithStreamingResponse(self)
-
-    async def retrieve(
+    def get(
         self,
         memory_id: str,
         *,
@@ -417,13 +354,34 @@ class AsyncMemoryResource(AsyncAPIResource):
         """
         if not memory_id:
             raise ValueError(f"Expected a non-empty value for `memory_id` but received {memory_id!r}")
-        return await self._get(
+        return self._get(
             f"/v1/memory/{memory_id}",
             options=make_request_options(
                 extra_headers=extra_headers, extra_query=extra_query, extra_body=extra_body, timeout=timeout
             ),
             cast_to=SearchResponse,
         )
+
+
+class AsyncMemoryResource(AsyncAPIResource):
+    @cached_property
+    def with_raw_response(self) -> AsyncMemoryResourceWithRawResponse:
+        """
+        This property can be used as a prefix for any HTTP method call to return
+        the raw response object instead of the parsed content.
+
+        For more information, see https://www.github.com/stainless-sdks/papr-python-sdk-python#accessing-raw-response-data-eg-headers
+        """
+        return AsyncMemoryResourceWithRawResponse(self)
+
+    @cached_property
+    def with_streaming_response(self) -> AsyncMemoryResourceWithStreamingResponse:
+        """
+        An alternative to `.with_raw_response` that doesn't eagerly read the response body.
+
+        For more information, see https://www.github.com/stainless-sdks/papr-python-sdk-python#with_streaming_response
+        """
+        return AsyncMemoryResourceWithStreamingResponse(self)
 
     async def update(
         self,
@@ -687,14 +645,53 @@ class AsyncMemoryResource(AsyncAPIResource):
             cast_to=MemoryAddBatchResponse,
         )
 
+    async def get(
+        self,
+        memory_id: str,
+        *,
+        # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
+        # The extra values given here take precedence over values defined on the client or passed to this method.
+        extra_headers: Headers | None = None,
+        extra_query: Query | None = None,
+        extra_body: Body | None = None,
+        timeout: float | httpx.Timeout | None | NotGiven = NOT_GIVEN,
+    ) -> SearchResponse:
+        """
+        Retrieve a memory item by ID.
+
+            **Authentication Required**:
+            One of the following authentication methods must be used:
+            - Bearer token in `Authorization` header
+            - API Key in `X-API-Key` header
+            - Session token in `X-Session-Token` header
+
+            **Required Headers**:
+            - X-Client-Type: (e.g., 'papr_plugin', 'browser_extension')
+
+        Args:
+          extra_headers: Send extra headers
+
+          extra_query: Add additional query parameters to the request
+
+          extra_body: Add additional JSON properties to the request
+
+          timeout: Override the client-level default timeout for this request, in seconds
+        """
+        if not memory_id:
+            raise ValueError(f"Expected a non-empty value for `memory_id` but received {memory_id!r}")
+        return await self._get(
+            f"/v1/memory/{memory_id}",
+            options=make_request_options(
+                extra_headers=extra_headers, extra_query=extra_query, extra_body=extra_body, timeout=timeout
+            ),
+            cast_to=SearchResponse,
+        )
+
 
 class MemoryResourceWithRawResponse:
     def __init__(self, memory: MemoryResource) -> None:
         self._memory = memory
 
-        self.retrieve = to_raw_response_wrapper(
-            memory.retrieve,
-        )
         self.update = to_raw_response_wrapper(
             memory.update,
         )
@@ -707,15 +704,15 @@ class MemoryResourceWithRawResponse:
         self.add_batch = to_raw_response_wrapper(
             memory.add_batch,
         )
+        self.get = to_raw_response_wrapper(
+            memory.get,
+        )
 
 
 class AsyncMemoryResourceWithRawResponse:
     def __init__(self, memory: AsyncMemoryResource) -> None:
         self._memory = memory
 
-        self.retrieve = async_to_raw_response_wrapper(
-            memory.retrieve,
-        )
         self.update = async_to_raw_response_wrapper(
             memory.update,
         )
@@ -728,15 +725,15 @@ class AsyncMemoryResourceWithRawResponse:
         self.add_batch = async_to_raw_response_wrapper(
             memory.add_batch,
         )
+        self.get = async_to_raw_response_wrapper(
+            memory.get,
+        )
 
 
 class MemoryResourceWithStreamingResponse:
     def __init__(self, memory: MemoryResource) -> None:
         self._memory = memory
 
-        self.retrieve = to_streamed_response_wrapper(
-            memory.retrieve,
-        )
         self.update = to_streamed_response_wrapper(
             memory.update,
         )
@@ -749,15 +746,15 @@ class MemoryResourceWithStreamingResponse:
         self.add_batch = to_streamed_response_wrapper(
             memory.add_batch,
         )
+        self.get = to_streamed_response_wrapper(
+            memory.get,
+        )
 
 
 class AsyncMemoryResourceWithStreamingResponse:
     def __init__(self, memory: AsyncMemoryResource) -> None:
         self._memory = memory
 
-        self.retrieve = async_to_streamed_response_wrapper(
-            memory.retrieve,
-        )
         self.update = async_to_streamed_response_wrapper(
             memory.update,
         )
@@ -769,4 +766,7 @@ class AsyncMemoryResourceWithStreamingResponse:
         )
         self.add_batch = async_to_streamed_response_wrapper(
             memory.add_batch,
+        )
+        self.get = async_to_streamed_response_wrapper(
+            memory.get,
         )

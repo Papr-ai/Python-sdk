@@ -7,9 +7,9 @@ import pytest
 import pydantic
 from pydantic import Field
 
-from papr_python_sdk._utils import PropertyInfo
-from papr_python_sdk._compat import PYDANTIC_V2, parse_obj, model_dump, model_json
-from papr_python_sdk._models import BaseModel, construct_type
+from memory._utils import PropertyInfo
+from memory._compat import PYDANTIC_V2, parse_obj, model_dump, model_json
+from memory._models import BaseModel, construct_type
 
 
 class BasicModel(BaseModel):

@@ -88,39 +88,6 @@ class UserResource(SyncAPIResource):
             cast_to=UserResponse,
         )
 
-    def retrieve(
-        self,
-        user_id: str,
-        *,
-        # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
-        # The extra values given here take precedence over values defined on the client or passed to this method.
-        extra_headers: Headers | None = None,
-        extra_query: Query | None = None,
-        extra_body: Body | None = None,
-        timeout: float | httpx.Timeout | None | NotGiven = NOT_GIVEN,
-    ) -> UserResponse:
-        """
-        Get user details by user_id (\\__User.objectId) and developer association
-
-        Args:
-          extra_headers: Send extra headers
-
-          extra_query: Add additional query parameters to the request
-
-          extra_body: Add additional JSON properties to the request
-
-          timeout: Override the client-level default timeout for this request, in seconds
-        """
-        if not user_id:
-            raise ValueError(f"Expected a non-empty value for `user_id` but received {user_id!r}")
-        return self._get(
-            f"/v1/user/{user_id}",
-            options=make_request_options(
-                extra_headers=extra_headers, extra_query=extra_query, extra_body=extra_body, timeout=timeout
-            ),
-            cast_to=UserResponse,
-        )
-
     def update(
         self,
         user_id: str,
@@ -247,6 +214,39 @@ class UserResource(SyncAPIResource):
             cast_to=object,
         )
 
+    def get(
+        self,
+        user_id: str,
+        *,
+        # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
+        # The extra values given here take precedence over values defined on the client or passed to this method.
+        extra_headers: Headers | None = None,
+        extra_query: Query | None = None,
+        extra_body: Body | None = None,
+        timeout: float | httpx.Timeout | None | NotGiven = NOT_GIVEN,
+    ) -> UserResponse:
+        """
+        Get user details by user_id (\\__User.objectId) and developer association
+
+        Args:
+          extra_headers: Send extra headers
+
+          extra_query: Add additional query parameters to the request
+
+          extra_body: Add additional JSON properties to the request
+
+          timeout: Override the client-level default timeout for this request, in seconds
+        """
+        if not user_id:
+            raise ValueError(f"Expected a non-empty value for `user_id` but received {user_id!r}")
+        return self._get(
+            f"/v1/user/{user_id}",
+            options=make_request_options(
+                extra_headers=extra_headers, extra_query=extra_query, extra_body=extra_body, timeout=timeout
+            ),
+            cast_to=UserResponse,
+        )
+
 
 class AsyncUserResource(AsyncAPIResource):
     @cached_property
@@ -305,39 +305,6 @@ class AsyncUserResource(AsyncAPIResource):
                 },
                 user_create_params.UserCreateParams,
             ),
-            options=make_request_options(
-                extra_headers=extra_headers, extra_query=extra_query, extra_body=extra_body, timeout=timeout
-            ),
-            cast_to=UserResponse,
-        )
-
-    async def retrieve(
-        self,
-        user_id: str,
-        *,
-        # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
-        # The extra values given here take precedence over values defined on the client or passed to this method.
-        extra_headers: Headers | None = None,
-        extra_query: Query | None = None,
-        extra_body: Body | None = None,
-        timeout: float | httpx.Timeout | None | NotGiven = NOT_GIVEN,
-    ) -> UserResponse:
-        """
-        Get user details by user_id (\\__User.objectId) and developer association
-
-        Args:
-          extra_headers: Send extra headers
-
-          extra_query: Add additional query parameters to the request
-
-          extra_body: Add additional JSON properties to the request
-
-          timeout: Override the client-level default timeout for this request, in seconds
-        """
-        if not user_id:
-            raise ValueError(f"Expected a non-empty value for `user_id` but received {user_id!r}")
-        return await self._get(
-            f"/v1/user/{user_id}",
             options=make_request_options(
                 extra_headers=extra_headers, extra_query=extra_query, extra_body=extra_body, timeout=timeout
             ),
@@ -470,6 +437,39 @@ class AsyncUserResource(AsyncAPIResource):
             cast_to=object,
         )
 
+    async def get(
+        self,
+        user_id: str,
+        *,
+        # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
+        # The extra values given here take precedence over values defined on the client or passed to this method.
+        extra_headers: Headers | None = None,
+        extra_query: Query | None = None,
+        extra_body: Body | None = None,
+        timeout: float | httpx.Timeout | None | NotGiven = NOT_GIVEN,
+    ) -> UserResponse:
+        """
+        Get user details by user_id (\\__User.objectId) and developer association
+
+        Args:
+          extra_headers: Send extra headers
+
+          extra_query: Add additional query parameters to the request
+
+          extra_body: Add additional JSON properties to the request
+
+          timeout: Override the client-level default timeout for this request, in seconds
+        """
+        if not user_id:
+            raise ValueError(f"Expected a non-empty value for `user_id` but received {user_id!r}")
+        return await self._get(
+            f"/v1/user/{user_id}",
+            options=make_request_options(
+                extra_headers=extra_headers, extra_query=extra_query, extra_body=extra_body, timeout=timeout
+            ),
+            cast_to=UserResponse,
+        )
+
 
 class UserResourceWithRawResponse:
     def __init__(self, user: UserResource) -> None:
@@ -477,9 +477,6 @@ class UserResourceWithRawResponse:
 
         self.create = to_raw_response_wrapper(
             user.create,
-        )
-        self.retrieve = to_raw_response_wrapper(
-            user.retrieve,
         )
         self.update = to_raw_response_wrapper(
             user.update,
@@ -490,6 +487,9 @@ class UserResourceWithRawResponse:
         self.delete = to_raw_response_wrapper(
             user.delete,
         )
+        self.get = to_raw_response_wrapper(
+            user.get,
+        )
 
 
 class AsyncUserResourceWithRawResponse:
@@ -498,9 +498,6 @@ class AsyncUserResourceWithRawResponse:
 
         self.create = async_to_raw_response_wrapper(
             user.create,
-        )
-        self.retrieve = async_to_raw_response_wrapper(
-            user.retrieve,
         )
         self.update = async_to_raw_response_wrapper(
             user.update,
@@ -511,6 +508,9 @@ class AsyncUserResourceWithRawResponse:
         self.delete = async_to_raw_response_wrapper(
             user.delete,
         )
+        self.get = async_to_raw_response_wrapper(
+            user.get,
+        )
 
 
 class UserResourceWithStreamingResponse:
@@ -519,9 +519,6 @@ class UserResourceWithStreamingResponse:
 
         self.create = to_streamed_response_wrapper(
             user.create,
-        )
-        self.retrieve = to_streamed_response_wrapper(
-            user.retrieve,
         )
         self.update = to_streamed_response_wrapper(
             user.update,
@@ -532,6 +529,9 @@ class UserResourceWithStreamingResponse:
         self.delete = to_streamed_response_wrapper(
             user.delete,
         )
+        self.get = to_streamed_response_wrapper(
+            user.get,
+        )
 
 
 class AsyncUserResourceWithStreamingResponse:
@@ -541,9 +541,6 @@ class AsyncUserResourceWithStreamingResponse:
         self.create = async_to_streamed_response_wrapper(
             user.create,
         )
-        self.retrieve = async_to_streamed_response_wrapper(
-            user.retrieve,
-        )
         self.update = async_to_streamed_response_wrapper(
             user.update,
         )
@@ -552,4 +549,7 @@ class AsyncUserResourceWithStreamingResponse:
         )
         self.delete = async_to_streamed_response_wrapper(
             user.delete,
+        )
+        self.get = async_to_streamed_response_wrapper(
+            user.get,
         )

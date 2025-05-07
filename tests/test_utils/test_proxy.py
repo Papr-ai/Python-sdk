@@ -2,7 +2,7 @@ import operator
 from typing import Any
 from typing_extensions import override
 
-from papr_python_sdk._utils import LazyProxy
+from memory._utils import LazyProxy
 
 
 class RecursiveLazyProxy(LazyProxy[Any]):
