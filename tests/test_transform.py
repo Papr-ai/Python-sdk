@@ -8,15 +8,15 @@ from typing_extensions import Required, Annotated, TypedDict
 
 import pytest
 
-from memory._types import NOT_GIVEN, Base64FileInput
-from memory._utils import (
+from papr._types import NOT_GIVEN, Base64FileInput
+from papr._utils import (
     PropertyInfo,
     transform as _transform,
     parse_datetime,
     async_transform as _async_transform,
 )
-from memory._compat import PYDANTIC_V2
-from memory._models import BaseModel
+from papr._compat import PYDANTIC_V2
+from papr._models import BaseModel
 
 _T = TypeVar("_T")
 
