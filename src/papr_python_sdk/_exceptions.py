@@ -18,11 +18,11 @@ __all__ = [
 ]
 
 
-class PaprPythonSDKError(Exception):
+class PaprError(Exception):
     pass
 
 
-class APIError(PaprPythonSDKError):
+class APIError(PaprError):
     message: str
     request: httpx.Request
 
