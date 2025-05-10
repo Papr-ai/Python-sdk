@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.0.1 (2025-05-10)
+
+Full Changelog: [v1.0.0...v1.0.1](https://github.com/Papr-ai/Python-sdk/compare/v1.0.0...v1.0.1)
+
+### Chores
+
+* **internal:** avoid errors for isinstance checks on proxies ([de57a6e](https://github.com/Papr-ai/Python-sdk/commit/de57a6e10f556d8e22f6cf6d2ad892817506e880))
+
 ## 1.0.0 (2025-05-08)
 
 Full Changelog: [v0.0.1-alpha.0...v1.0.0](https://github.com/Papr-ai/Python-sdk/compare/v0.0.1-alpha.0...v1.0.0)
